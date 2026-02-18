@@ -1,0 +1,30 @@
+{
+  "name": "codev1be-social-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Diamond-FoxUA/codev1be-social-api.git"
+  },
+  "keywords": [],
+  "author": "Dmytro Farbun <dimofarb@gmail.com>",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Diamond-FoxUA/codev1be-social-api/issues"
+  },
+  "homepage": "https://github.com/Diamond-FoxUA/codev1be-social-api#readme",
+  "dependencies": {
+    "nodemon": "^3.1.11"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.0.0",
+    "globals": "^17.3.0"
+  }
+}
