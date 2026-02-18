@@ -10,6 +10,7 @@ import { notFoundHandler } from './middleware/notFoundHandler.js';
 import storiesRoutes from './routes/storiesRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import usersRoutes from './routes/usersRoutes.js';
+import { connectMongoDB } from './db/connectMongoDB.js';
 
 const app = express();
 
@@ -28,6 +29,8 @@ app.use(usersRoutes);
 app.use(notFoundHandler);
 app.use(errors());
 app.use(errorHandler);
+
+await connectMongoDB();
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
