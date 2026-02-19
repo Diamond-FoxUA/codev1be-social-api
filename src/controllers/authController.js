@@ -6,25 +6,25 @@ import { Session } from '../models/session.js';
 
 //реализовал регистрацию
 export const registerUser = async (req, res) => {
-  const { email, password, fullName } = req.body;
+  const { email, password, name } = req.body;
 
   const existingUser = await User.findOne({ email });
-  if (existingUser) {
-    throw createHttpError(409, 'Email in use');
-  }
-  //хеш пароля
+  if (existingUser) throw createHttpError(409, 'Email in use');
+
   const hashedPassword = await bcrypt.hash(password, 10);
+
   const newUser = await User.create({
     email,
     password: hashedPassword,
-    fullName,
+    name,
   });
 
   const newSession = await createSession(newUser._id);
-
   setSessionCookies(res, newSession);
+
   res.status(201).json(newUser);
 };
+
 //реализовал логин
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -57,9 +57,17 @@ export const logoutUser = async (req, res) => {
     await Session.deleteOne({ _id: sessionId });
   }
 
-  res.clearCookie('sessionId');
-  res.clearCookie('accessToken');
-  res.clearCookie('refreshToken');
+  const isProd = process.env.NODE_ENV === 'production';
+  const base = {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
+    path: '/',
+  };
+
+  res.clearCookie('sessionId', base);
+  res.clearCookie('accessToken', base);
+  res.clearCookie('refreshToken', base);
 
   res.status(204).send();
 };

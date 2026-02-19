@@ -1,24 +1,46 @@
-import { model, Schema } from 'mongoose';
-//создал модель пользователя
-const userSchema = new Schema(
+import mongoose from 'mongoose';
+
+const userSchema = new mongoose.Schema(
   {
-    fullName: { type: String, trim: true, required: true },
     email: {
       type: String,
-      unique: true,
-      required: true,
       trim: true,
       lowercase: true,
+      unique: true,
+      required: true,
     },
-    password: { type: String, required: true },
+    password: {
+      type: String,
+      trim: true,
+      required: true,
+    },
+    name: {
+      type: String,
+      trim: true,
+      required: true, // если у вас на форме имя обязательное
+    },
+    avatarUrl: {
+      type: String,
+      required: false,
+      default: 'https://ac.goit.global/fullstack/react/default-avatar.jpg',
+    },
+    articlesAmount: {
+      type: Number,
+      default: 0,
+    },
+    description: {
+      type: String,
+      required: false,
+      default: '',
+    },
   },
   { timestamps: true },
 );
-//удалил пароль с ответа
+
 userSchema.methods.toJSON = function () {
   const obj = this.toObject();
   delete obj.password;
   return obj;
 };
 
-export const User = model('User', userSchema);
+export const User = mongoose.model('User', userSchema);

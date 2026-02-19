@@ -2,9 +2,9 @@ import { Joi, Segments } from 'celebrate';
 //вадидация регистрации
 export const registerUserSchema = {
   [Segments.BODY]: Joi.object({
-    email: Joi.string().email().required().lowercase(),
+    email: Joi.string().email().lowercase().required(),
     password: Joi.string().min(8).required(),
-    fullName: Joi.string().required().min(3).trim(),
+    name: Joi.string().trim().min(3).required(),
   }),
 };
 //валидация логина
