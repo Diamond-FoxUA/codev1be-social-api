@@ -36,9 +36,4 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-try {
-  await connectMongoDB();
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-} catch (err) {
-  console.error('Failed to connect to MongoDB', err);
-}
+

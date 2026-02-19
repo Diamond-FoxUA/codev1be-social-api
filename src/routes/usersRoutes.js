@@ -5,6 +5,12 @@ import { authMiddleware } from '../middleware/authMiddleware.js';
 
 const router = Router();
 
-router.get('/api/users', getAllUsers);
+router.get('/api/users/userId', getAllUsers);
 router.get('/current', authMiddleware, getCurrentUser);
 export default router;
+
+
+ 
+ router.get('/api/users', getAllUsers);
+-
++router.get('/current', authMiddleware, getCurrentUser);
