@@ -20,6 +20,19 @@ const storySchema = mongoose.Schema(
       ref: 'Category',
       required: true,
     },
+    ownerId: {
+      type: mongoose.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    favouriteCount: {
+      type: Number,
+      default: 0
+    },
+    date: {
+      type: Date,
+      default: Date.now,
+    },
   },
 );
 
