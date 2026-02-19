@@ -1,16 +1,17 @@
-import express from "express";
-import cors from "cors";
-import helmet from "helmet";
-import "dotenv/config";
-import cookieParser from "cookie-parser";
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import 'dotenv/config';
+import cookieParser from 'cookie-parser';
 import { logger } from './middleware/logger.js';
-import { errors } from "celebrate";
+import { errors } from 'celebrate';
 import { errorHandler } from './middleware/errorHandler.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
 import storiesRoutes from './routes/storiesRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import usersRoutes from './routes/usersRoutes.js';
 import { connectMongoDB } from './db/connectMongoDB.js';
+import { updateUser } from './controllers/usersController.js';
 
 const app = express();
 
