@@ -4,23 +4,30 @@ import {
   getAllStories,
   addToFavorites,
   removeFromFavorites,
+  getFavouriteStories
 } from '../controllers/storiesController.js';
 import { storyIdSchema } from '../validations/storiesValidation.js';
 import { authenticate } from '../middleware/authenticate.js';
 
 const router = Router();
 
-router.use('/favorite', authenticate);
-
 router.get('/api/stories', getAllStories);
 
+router.use('/api/stories/:storyId/save', authenticate);
+
+// TODO: getFavouriteStories
+router.get(
+  '/api/stories/saved',
+  authenticate,
+  getFavouriteStories
+);
 router.post(
-  '/api/stories/favorite/:storyId',
+  '/api/stories/:storyId/save',
   celebrate(storyIdSchema),
   addToFavorites,
 );
 router.delete(
-  '/favorite/:storyId',
+  '/api/stories/:storyId/save',
   celebrate(storyIdSchema),
   removeFromFavorites,
 );
