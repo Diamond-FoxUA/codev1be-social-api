@@ -7,31 +7,31 @@ export const addToFavorites = async (req, res) => {
   const { _id: userId } = req.user;
 
   const user = await User.findById(userId);
+  if (!user) {
+    throw createHttpError(404, "User not found");
+  }
+
   const story = await Story.findById(storyId);
-
   if (!story) {
-    throw createHttpError(404, 'Story not found');
+    throw createHttpError(404, "Story not found");
   }
 
-  if (!user.favoriteStories.includes(storyId)) {
-    const newFavorites = [...user.favoriteStories, storyId];
-
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { favoriteStories: newFavorites },
-      { new: true },
-    );
-
-    await Story.findByIdAndUpdate(
-      storyId,
-      { favoriteCount: story.favoriteCount + 1 },
-      { new: true },
-    );
-
-    return res.status(200).json(updatedUser.favoriteStories);
+  if (user.favoriteStories.includes(storyId)) {
+    throw createHttpError(409, "Story already saved");
   }
 
-  res.status(200).json(user.favoriteStories);
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { $addToSet: { favoriteStories: storyId } },
+    { new: true },
+  );
+
+  await Story.findByIdAndUpdate(
+    storyId,
+    { $inc: { favoriteCount: 1 } }
+  );
+
+  res.status(200).json(updatedUser.favoriteStories);
 };
 
 export const removeFromFavorites = async (req, res) => {
@@ -39,25 +39,29 @@ export const removeFromFavorites = async (req, res) => {
   const { _id: userId } = req.user;
 
   const user = await User.findById(userId);
-  const story = await Story.findById(storyId);
+  if (!user) {
+    throw createHttpError(404, "User not found");
+  }
 
-  const newFavorites = user.favoriteStories.filter(
-    (id) => id.toString() !== storyId,
-  );
+  const story = await Story.findById(storyId);
+  if (!story) {
+    throw createHttpError(404, "Story not found");
+  }
+
+  if (!user.favoriteStories.includes(storyId)) {
+    throw createHttpError(409, "Story is not in favorites");
+  }
 
   const updatedUser = await User.findByIdAndUpdate(
     userId,
-    { favoriteStories: newFavorites },
+    { $pull: { favoriteStories: storyId } },
     { new: true },
   );
 
-  if (story && story.favoriteCount > 0) {
-    await Story.findByIdAndUpdate(
-      storyId,
-      { favoriteCount: story.favoriteCount - 1 },
-      { new: true },
-    );
-  }
+  await Story.updateOne(
+    { _id: storyId, favoriteCount: { $gt: 0 } },
+    { $inc: { favoriteCount: -1 } }
+  );
 
   res.status(200).json(updatedUser.favoriteStories);
 };
