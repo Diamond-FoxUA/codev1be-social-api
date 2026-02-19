@@ -1,16 +1,13 @@
 import { Router } from 'express';
+
 import { getAllUsers } from '../controllers/usersController.js';
 import { getCurrentUser } from '../controllers/usersController.js';
-import { authMiddleware } from '../middleware/authMiddleware.js';
+import { authenticate } from '../middleware/authMiddleware.js';
 
 const router = Router();
+// example
+router.get('/api/users', getAllUsers);
+// endpoint for getting current user (user profile with saved stories) 
+router.get('/api/users/me', authenticate, getCurrentUser);
 
-router.get('/api/users/userId', getAllUsers);
-router.get('/current', authMiddleware, getCurrentUser);
 export default router;
-
-
- 
- router.get('/api/users', getAllUsers);
--
-+router.get('/current', authMiddleware, getCurrentUser);
