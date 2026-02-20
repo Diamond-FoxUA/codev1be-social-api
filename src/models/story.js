@@ -2,18 +2,20 @@ import mongoose from "mongoose";
 
 const storySchema = mongoose.Schema(
   {
-    title: {
-      type: String,
-      trim: true,
-      required: true,
-    },
     img: {
       type: String,
-      required: false,
+      required: true,
+      trim: true,
     },
-    description: {
+    title: {
       type: String,
       required: true,
+      trim: true,
+    },
+    article: {
+      type: String,
+      required: true,
+      trim: true,
     },
     category: {
       type: mongoose.Types.ObjectId,

@@ -1,8 +1,11 @@
 import { Router } from "express";
-import { getAllUsers } from "../controllers/usersController.js";
+import { celebrate } from "celebrate";
+import { getUsers, getUserById } from "../controllers/usersController.js";
+import { getUsersSchema } from "../validations/usersValidation.js";
 
 const router = Router();
 
-router.get('/api/users', getAllUsers);
+router.get("/", celebrate(getUsersSchema), getUsers);
+router.get("/:userId", celebrate(), getUserById);
 
 export default router;
