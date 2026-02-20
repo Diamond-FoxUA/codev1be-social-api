@@ -1,12 +1,13 @@
 import createHttpError from 'http-errors';
 import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
 import { Story } from '../models/story.js';
+import { User } from '../models/user.js';
+
 export const getAllStories = async (req, res) => {
   res.status(200).json({ message: 'All stories received' });
 };
 
 export const createStory = async (req, res) => {
-  // 1️⃣ Создаём историю без картинки
   const story = await Story.create({
     ...req.body, // title, description, category, date и т.д.
     ownerId: req.user._id,
@@ -43,4 +44,65 @@ export const updateStory = async (req, res) => {
     throw createHttpError(404, 'Story not found');
   }
   res.status(200).json({ msg: 'Updated!' });
+};
+
+export const addToFavorites = async (req, res) => {
+  const { storyId } = req.params;
+  const { _id: userId } = req.user;
+
+  const user = await User.findById(userId);
+  if (!user) {
+    throw createHttpError(404, 'User not found');
+  }
+
+  const story = await Story.findById(storyId);
+  if (!story) {
+    throw createHttpError(404, 'Story not found');
+  }
+
+  if (user.favoriteStories.includes(storyId)) {
+    throw createHttpError(409, 'Story already saved');
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { $addToSet: { favoriteStories: storyId } },
+    { new: true },
+  );
+
+  await Story.findByIdAndUpdate(storyId, { $inc: { favoriteCount: 1 } });
+
+  res.status(200).json(updatedUser.favoriteStories);
+};
+
+export const removeFromFavorites = async (req, res) => {
+  const { storyId } = req.params;
+  const { _id: userId } = req.user;
+
+  const user = await User.findById(userId);
+  if (!user) {
+    throw createHttpError(404, 'User not found');
+  }
+
+  const story = await Story.findById(storyId);
+  if (!story) {
+    throw createHttpError(404, 'Story not found');
+  }
+
+  if (!user.favoriteStories.includes(storyId)) {
+    throw createHttpError(409, 'Story is not in favorites');
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { $pull: { favoriteStories: storyId } },
+    { new: true },
+  );
+
+  await Story.updateOne(
+    { _id: storyId, favoriteCount: { $gt: 0 } },
+    { $inc: { favoriteCount: -1 } },
+  );
+
+  res.status(200).json(updatedUser.favoriteStories);
 };

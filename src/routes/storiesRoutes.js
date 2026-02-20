@@ -1,10 +1,17 @@
 import { Router } from 'express';
-import { getAllStories } from '../controllers/storiesController.js';
 import { celebrate } from 'celebrate';
-import { createStory, updateStory } from '../controllers/storiesController.js';
+import {
+  getAllStories,
+  addToFavorites,
+  removeFromFavorites,
+  getFavouriteStories,
+  createStory,
+  updateStory,
+} from '../controllers/storiesController.js';
 import {
   createStorySchema,
   updateStorySchema,
+  storyIdSchema,
 } from '../validation/storiesValidation.js';
 import { authenticate } from '../middleware/authMiddleware.js';
 import { upload } from '../middleware/multer.js';
@@ -25,6 +32,21 @@ router.patch(
   upload.single('storyImage'),
   celebrate(updateStorySchema),
   updateStory,
+);
+
+router.use('/api/stories/:storyId/save', authenticate);
+
+// Favourite stories
+router.get('/api/stories/saved', authenticate, getFavouriteStories);
+router.post(
+  '/api/stories/:storyId/save',
+  celebrate(storyIdSchema),
+  addToFavorites,
+);
+router.delete(
+  '/api/stories/:storyId/save',
+  celebrate(storyIdSchema),
+  removeFromFavorites,
 );
 
 export default router;

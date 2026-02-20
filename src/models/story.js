@@ -1,26 +1,28 @@
-import mongoose from 'mongoose';
+import { Schema, model } from 'mongoose';
 
-const storySchema = mongoose.Schema({
-  title: {
-    type: String,
-    trim: true,
-    required: true,
-  },
+const storySchema = new Schema({
   img: {
     type: String,
-    required: false,
+    required: true,
+    trim: true,
   },
-  description: {
+  title: {
     type: String,
     required: true,
+    trim: true,
+  },
+  article: {
+    type: String,
+    required: true,
+    trim: true,
   },
   category: {
-    type: mongoose.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'Category',
     required: true,
   },
   ownerId: {
-    type: mongoose.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'User',
     required: true,
   },
@@ -36,4 +38,4 @@ const storySchema = mongoose.Schema({
   },
 });
 
-export const Story = mongoose.model('Story', storySchema);
+export const Story = model('Story', storySchema);
