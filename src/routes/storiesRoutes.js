@@ -18,35 +18,14 @@ import { upload } from '../middleware/multer.js';
 
 const router = Router();
 
-router.get('/api/stories', getAllStories);
-router.post(
-  '/api/stories',
-  authenticate,
-  upload.single('storyImage'),
-  celebrate(createStorySchema),
-  createStory,
-);
-router.patch(
-  '/api/stories/:storyId',
-  authenticate,
-  upload.single('storyImage'),
-  celebrate(updateStorySchema),
-  updateStory,
-);
+router.get('/', getAllStories);
+router.post('/', authenticate, upload.single('storyImage'), celebrate(createStorySchema), createStory);
+router.patch('/:storyId', authenticate, upload.single('storyImage'), celebrate(updateStorySchema), updateStory);
 
-router.use('/api/stories/:storyId/save', authenticate);
-
-// Favourite stories
-router.get('/api/stories/saved', authenticate, getFavouriteStories);
-router.post(
-  '/api/stories/:storyId/save',
-  celebrate(storyIdSchema),
-  addToFavorites,
-);
-router.delete(
-  '/api/stories/:storyId/save',
-  celebrate(storyIdSchema),
-  removeFromFavorites,
-);
+router.get('/saved', authenticate, getFavouriteStories);
+router.route('/:storyId/save')
+    .all(authenticate)
+    .post(celebrate(storyIdSchema), addToFavorites)
+    .delete(celebrate(storyIdSchema), removeFromFavorites);
 
 export default router;
