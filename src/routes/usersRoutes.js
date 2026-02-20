@@ -14,7 +14,7 @@ router.get('/api/users', getAllUsers);
 router.get('/api/users/me', authenticate, getCurrentUser);
 
 router.patch(
-  '/api/users/me/avatar',
+  '/api/users/avatar',
   authenticate,
   upload.single("avatar"),
   updateUserAvatar,
