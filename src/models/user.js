@@ -19,7 +19,6 @@ const userSchema = mongoose.Schema(
     },
     avatarUrl: {
       type: String,
-      required: false,
       default: "https://ac.goit.global/fullstack/react/default-avatar.jpg",
     },
     storiesAmount: {
@@ -38,7 +37,7 @@ const userSchema = mongoose.Schema(
     }],
     description: {
       type: String,
-      required: false,
+      trim: true,
     }
   },
 );
