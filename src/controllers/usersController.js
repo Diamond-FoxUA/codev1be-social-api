@@ -6,12 +6,10 @@ export const getAllUsers = async (req, res) => {
 export const getCurrentUser = async (req, res) => {
   const { _id, name, avatarUrl, description } = req.user;
 
-  res.status(200).json(
-    {
-      _id,
-      name,
-      description,
-      avatarUrl
-    }
-  );
+  res.status(200).json({
+    _id,
+    name,
+    description,
+    avatarUrl,
+  });
 };
