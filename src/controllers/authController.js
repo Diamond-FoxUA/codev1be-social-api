@@ -4,7 +4,6 @@ import { User } from '../models/user.js';
 import { createSession, setSessionCookies } from '../services/auth.js';
 import { Session } from '../models/session.js';
 
-//реализовал регистрацию
 export const registerUser = async (req, res) => {
   const { email, password, name } = req.body;
 
@@ -25,7 +24,6 @@ export const registerUser = async (req, res) => {
   res.status(201).json(newUser);
 };
 
-//реализовал логин
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
@@ -34,14 +32,12 @@ export const loginUser = async (req, res) => {
   if (!user) {
     throw createHttpError(401, 'Invalid credentials');
   }
-  //cравнения хеша
   const isValidPassword = await bcrypt.compare(password, user.password);
 
   if (!isValidPassword) {
     throw createHttpError(401, 'Invalid credentials');
   }
 
-  //удаляем старую сессию
   await Session.deleteOne({ userId: user._id });
 
   const newSession = await createSession(user._id);
