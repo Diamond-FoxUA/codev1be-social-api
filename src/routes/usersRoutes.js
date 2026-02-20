@@ -1,13 +1,14 @@
-import { Router } from 'express';
+import { Router } from "express";
+import { celebrate } from "celebrate";
+import { getUsers, getUserById } from "../controllers/usersController.js";
+import { getUsersSchema } from "../validations/usersValidation.js";
+
 
 import { getAllUsers } from '../controllers/usersController.js';
 import { getCurrentUser } from '../controllers/usersController.js';
 import { authenticate } from '../middleware/authMiddleware.js';
 
-const router = Router();
-// example
-router.get('/api/users', getAllUsers);
-// endpoint for getting current user (user profile with saved stories) 
-router.get('/api/users/me', authenticate, getCurrentUser);
+router.get("/", celebrate(getUsersSchema), getUsers);
+router.get("/:userId", celebrate(), getUserById);
 
 export default router;

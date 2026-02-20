@@ -22,9 +22,9 @@ app.use(cookieParser());
 
 const PORT = process.env.PORT ?? 3000;
 
-app.use(storiesRoutes);
-app.use(authRoutes);
-app.use(usersRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/stories", storiesRoutes);
+app.use("/api/users", usersRoutes);
 
 app.use(notFoundHandler);
 app.use(errors());
