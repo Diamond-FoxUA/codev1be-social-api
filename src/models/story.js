@@ -1,6 +1,6 @@
-import { Schema, model } from 'mongoose';
+import mongoose from "mongoose";
 
-const storySchema = new Schema(
+const storySchema = mongoose.Schema(
   {
     img: {
       type: String,
@@ -18,7 +18,7 @@ const storySchema = new Schema(
       trim: true,
     },
     category: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Types.ObjectId,
       ref: 'Category',
       required: true,
     },
