@@ -1,16 +1,15 @@
 import { Joi, Segments } from 'celebrate';
-//вадидация регистрации
+
 export const registerUserSchema = {
   [Segments.BODY]: Joi.object({
-    email: Joi.string().email().lowercase().required(),
-    password: Joi.string().min(8).required(),
-    name: Joi.string().trim().min(3).required(),
+    name: Joi.string().trim().max(32).required(),
+    email: Joi.string().email().max(64).required(),
+    password: Joi.string().min(8).max(138).required(),
   }),
 };
-//валидация логина
 export const loginUserSchema = {
   [Segments.BODY]: Joi.object({
-    email: Joi.string().email().required().lowercase(),
-    password: Joi.string().required().min(8),
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
   }),
 };
