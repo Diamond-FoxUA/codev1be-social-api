@@ -1,50 +1,34 @@
-import { Schema, model } from 'mongoose';
+import mongoose from "mongoose";
 
-const userSchema = new Schema(
+const userSchema = mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-    },
     email: {
       type: String,
-      required: true,
-      unique: true,
       trim: true,
+      unique: true,
+      required: true
     },
     password: {
       type: String,
+      trim: true,
       required: true,
+    },
+    name: {
+      type: String,
+      trim: true,
     },
     avatarUrl: {
       type: String,
-      default: 'https://ac.goit.global/fullstack/react/default-avatar.jpg',
-      trim: true,
-    },
-    description: {
-      type: String,
-      default: '',
-      trim: true,
+      required: false,
+      default: "https://ac.goit.global/fullstack/react/default-avatar.jpg",
     },
     articlesAmount: {
       type: Number,
-      default: 0,
     },
-    favoriteStories: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Story',
-      },
-    ],
-    token: {
+    description: {
       type: String,
-      default: null,
-    },
-  },
-  {
-    versionKey: false,
-    timestamps: true,
+      required: false,
+    }
   },
 );
 
@@ -54,4 +38,4 @@ userSchema.methods.toJSON = function () {
   return obj;
 };
 
-export const User = model('User', userSchema);
+export const User = mongoose.model("User", userSchema);

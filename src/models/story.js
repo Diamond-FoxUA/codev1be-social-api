@@ -23,24 +23,21 @@ const storySchema = new Schema(
       required: true,
     },
     ownerId: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Types.ObjectId,
       ref: 'User',
       required: true,
+    },
+    favouriteCount: {
+      type: Number,
+      default: 0
     },
     date: {
       type: String,
       required: true,
-      trim: true,
+      match: /^\d{4}-\d{2}-\d{2}$/,
+      default: () => new Date().toISOString().split('T')[0],
     },
-    favoriteCount: {
-      type: Number,
-      default: 0,
-    },
-  },
-  {
-    versionKey: false,
-    timestamps: true,
   },
 );
 
-export const Story = model('Story', storySchema);
+export const Story = mongoose.model("Story", storySchema);
