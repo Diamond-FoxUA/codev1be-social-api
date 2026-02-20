@@ -40,7 +40,7 @@ export const updateStorySchema = {
       'string.empty': 'Description is required',
       'string.max': 'Description must be at most 2500 characters',
     }),
-    category: Joi.custom(objectIdValidator).string(),
+    category: Joi.string().custom(objectIdValidator),
     img: Joi.string().default('https://placehold.co/600x400'),
   }).min(1),
 };
