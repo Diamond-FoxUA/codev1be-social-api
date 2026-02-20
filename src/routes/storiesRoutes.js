@@ -11,25 +11,13 @@ import { authenticate } from '../middleware/authenticate.js';
 
 const router = Router();
 
-router.get('/api/stories', getAllStories);
+router.get('/', getAllStories);
 
-router.use('/api/stories/:storyId/save', authenticate);
+router.get('/saved', authenticate, getFavouriteStories);
 
-// TODO: getFavouriteStories
-router.get(
-  '/api/stories/saved',
-  authenticate,
-  getFavouriteStories
-);
-router.post(
-  '/api/stories/:storyId/save',
-  celebrate(storyIdSchema),
-  addToFavorites,
-);
-router.delete(
-  '/api/stories/:storyId/save',
-  celebrate(storyIdSchema),
-  removeFromFavorites,
-);
+router.route('/:storyId/save')
+    .all(authenticate)
+    .post(celebrate(storyIdSchema), addToFavorites)
+    .delete(celebrate(storyIdSchema), removeFromFavorites);
 
 export default router;
