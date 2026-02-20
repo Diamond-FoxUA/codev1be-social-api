@@ -1,5 +1,6 @@
 import { User } from '../models/user.js';
 
+// example
 export const getAllUsers = async (req, res) => {
   res.status(200).json({ message: 'All users received' });
 };
@@ -25,4 +26,15 @@ export const updateUser = async (req, res, next) => {
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
+};
+
+export const getCurrentUser = async (req, res) => {
+  const { _id, name, avatarUrl, description } = req.user;
+
+  res.status(200).json({
+    _id,
+    name,
+    description,
+    avatarUrl,
+  });
 };

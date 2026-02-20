@@ -11,7 +11,6 @@ import storiesRoutes from './routes/storiesRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import usersRoutes from './routes/usersRoutes.js';
 import { connectMongoDB } from './db/connectMongoDB.js';
-import { updateUser } from './controllers/usersController.js';
 
 const app = express();
 

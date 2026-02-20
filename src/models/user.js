@@ -1,25 +1,39 @@
-import { model, Schema } from 'mongoose';
+import mongoose from 'mongoose';
 
-const userSchema = new Schema(
-  {
-    name: {
-      type: String,
-      trim: true,
-    },
-    avatarUrl: {
-      type: String,
-    },
-    articlesAmount: {
-      type: Number,
-    },
-    description: {
-      type: String,
-      trim: true,
-    },
+const userSchema = mongoose.Schema({
+  email: {
+    type: String,
+    trim: true,
+    unique: true,
+    required: true,
   },
-  {
-    timestamps: true,
-    versionKey: false,
+  password: {
+    type: String,
+    trim: true,
+    required: true,
   },
-);
-export const User = model('User', userSchema);
+  name: {
+    type: String,
+    trim: true,
+  },
+  avatarUrl: {
+    type: String,
+    required: false,
+    default: 'https://ac.goit.global/fullstack/react/default-avatar.jpg',
+  },
+  articlesAmount: {
+    type: Number,
+  },
+  description: {
+    type: String,
+    required: false,
+  },
+});
+
+userSchema.methods.toJSON = function () {
+  const obj = this.toObject();
+  delete obj.password;
+  return obj;
+};
+
+export const User = mongoose.model('User', userSchema);
