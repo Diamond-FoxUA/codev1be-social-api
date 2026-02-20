@@ -12,7 +12,7 @@ const storySchema = mongoose.Schema(
       required: true,
       trim: true,
     },
-    article: {
+    description: {
       type: String,
       required: true,
       trim: true,
@@ -37,7 +37,6 @@ const storySchema = mongoose.Schema(
       match: /^\d{4}-\d{2}-\d{2}$/,
       default: () => new Date().toISOString().split('T')[0],
     },
-  },
-);
+  });
 
-export const Story = mongoose.model("Story", storySchema);
+export const Story = mongoose.model('Story', storySchema);
