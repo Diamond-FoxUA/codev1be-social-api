@@ -8,6 +8,12 @@ const objectIdValidator = (value, helpers) => {
   return value;
 };
 
+export const storyIdSchema = {
+  [Segments.PARAMS]: Joi.object({
+    storyId: Joi.string().custom(objectIdValidator).required(),
+  }),
+};
+
 export const createStorySchema = {
   [Segments.BODY]: Joi.object({
     title: Joi.string().min(5).max(80).required().messages({
