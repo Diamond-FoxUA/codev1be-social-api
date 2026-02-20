@@ -8,7 +8,9 @@ export const registerUser = async (req, res) => {
   const { email, password, name } = req.body;
 
   const existingUser = await User.findOne({ email });
-  if (existingUser) throw createHttpError(409, 'Email in use');
+  if (existingUser) {
+    throw createHttpError(400, 'Email in use');
+  }
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -28,12 +30,11 @@ export const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
-
   if (!user) {
     throw createHttpError(401, 'Invalid credentials');
   }
-  const isValidPassword = await bcrypt.compare(password, user.password);
 
+  const isValidPassword = await bcrypt.compare(password, user.password);
   if (!isValidPassword) {
     throw createHttpError(401, 'Invalid credentials');
   }
@@ -48,22 +49,13 @@ export const loginUser = async (req, res) => {
 
 export const logoutUser = async (req, res) => {
   const { sessionId } = req.cookies;
-
   if (sessionId) {
     await Session.deleteOne({ _id: sessionId });
   }
 
-  const isProd = process.env.NODE_ENV === 'production';
-  const base = {
-    httpOnly: true,
-    secure: isProd,
-    sameSite: isProd ? 'none' : 'lax',
-    path: '/',
-  };
-
-  res.clearCookie('sessionId', base);
-  res.clearCookie('accessToken', base);
-  res.clearCookie('refreshToken', base);
+  res.clearCookie('sessionId');
+  res.clearCookie('accessToken');
+  res.clearCookie('refreshToken');
 
   res.status(204).send();
 };
