@@ -4,7 +4,7 @@ import { Story } from '../models/story.js';
 import { User } from '../models/user.js';
 
 export const getAllStories = async (req, res) => {
-  const { page = 1, perPage = 5, category } = req.query;
+  const { page = 1, perPage = 3, category } = req.query;
 
   const skip = (page - 1) * perPage;
 
@@ -22,9 +22,10 @@ export const getAllStories = async (req, res) => {
   const totalPages = Math.ceil(total / perPage);
 
   res.status(200).json({
-    data: stories,
-    total,
+    stories,
+    totalStories,
     page,
+    perPage,
     totalPages
   });
 };
