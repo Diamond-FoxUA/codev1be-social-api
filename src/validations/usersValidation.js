@@ -3,7 +3,8 @@ import { isValidObjectId } from "mongoose";
 
 export const getUsersSchema = {
   [Segments.QUERY]: Joi.object({
-    page: Joi.number().integer().min(1).default(1),
+    page: Joi.number().integer().required(),
+    perPage: Joi.number().integer().min(4).max(9).required(),
   }),
 };
 
