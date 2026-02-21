@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const userSchema = mongoose.Schema(
   {
@@ -39,7 +39,7 @@ const userSchema = mongoose.Schema(
       trim: true,
     }
   },
-);
+});
 
 userSchema.methods.toJSON = function () {
   const obj = this.toObject();
@@ -47,4 +47,4 @@ userSchema.methods.toJSON = function () {
   return obj;
 };
 
-export const User = mongoose.model("User", userSchema);
+export const User = mongoose.model('User', userSchema);
