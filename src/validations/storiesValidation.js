@@ -22,13 +22,6 @@ export const storyIdSchema = {
   }),
 };
 
-export const updateUserSchema = {
-  [Segments.BODY]: Joi.object({
-    name: Joi.string().min(3).max(32),
-    description: Joi.string().max(200).allow(''),
-  }),
-};
-
 export const createStorySchema = {
   [Segments.BODY]: Joi.object({
     title: Joi.string().min(5).max(80).required().messages({
