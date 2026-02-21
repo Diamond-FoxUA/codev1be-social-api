@@ -106,3 +106,15 @@ export const removeFromFavorites = async (req, res) => {
 
   res.status(200).json(updatedUser.favoriteStories);
 };
+
+export const getSavedStories = async (req, res) => {
+  const user = await User.find({ _id: req.user._id });
+
+  if (!user) {
+    throw createHttpError(404, 'User not found');
+  };
+
+  const saves = user.savedStories;
+
+  res.status(200).json(saves);
+};
