@@ -108,19 +108,13 @@ export const removeFromFavorites = async (req, res) => {
 };
 
 export const getMyStories = async (req, res) => {
-  const { page = 1, perPage = 5 } = req.query;
-
-  const user = await User.find({ _id: req.user._id });
-
-  if (!user) {
-    throw createHttpError(404, 'User not found');
-  }
+  const { page = 1, perPage = 4 } = req.query;
 
   const skip = (page - 1) * perPage;
 
   const storiesQuery = Story.find();
 
-  storiesQuery.where({ ownerId: "6881563901add19ee16fd017" });
+  storiesQuery.where({ ownerId: req.user._id }).populate('ownerId').sort({ createdAt: -1 });
 
   const [total, stories] = await Promise.all([
     storiesQuery.clone().countDocuments(),
@@ -130,9 +124,10 @@ export const getMyStories = async (req, res) => {
   const totalPages = Math.ceil(total / perPage);
 
   res.status(200).json({
-    data: stories,
-    total,
+    stories,
+    totalStories: total,
     page,
+    perPage,
     totalPages
   });
 };
