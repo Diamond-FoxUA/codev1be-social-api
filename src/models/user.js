@@ -39,7 +39,7 @@ const userSchema = mongoose.Schema(
       trim: true,
     }
   },
-});
+);
 
 userSchema.methods.toJSON = function () {
   const obj = this.toObject();
