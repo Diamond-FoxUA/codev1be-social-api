@@ -4,7 +4,30 @@ import { Story } from '../models/story.js';
 import { User } from '../models/user.js';
 
 export const getAllStories = async (req, res) => {
-  res.status(200).json({ message: 'All stories received' });
+  const { page = 1, perPage = 3, category } = req.query;
+
+  const skip = (page - 1) * perPage;
+
+  const storiesQuery = Story.find();
+
+  if (category) {
+    storiesQuery.where({category: category});
+  }
+
+  const [total, stories] = await Promise.all([
+    storiesQuery.clone().countDocuments(),
+    storiesQuery.skip(skip).limit(perPage),
+  ]);
+
+  const totalPages = Math.ceil(total / perPage);
+
+  res.status(200).json({
+    stories,
+    totalStories,
+    page,
+    perPage,
+    totalPages
+  });
 };
 
 export const createStory = async (req, res) => {
