@@ -108,13 +108,29 @@ export const removeFromFavorites = async (req, res) => {
 };
 
 export const getSavedStories = async (req, res) => {
-  const user = await User.find({ _id: req.user._id });
+  const { page = 1, perPage = 4 } = req.query;
+
+  const skip = (page - 1) * perPage;
+  const user = await User.findById(req.user._id);
 
   if (!user) {
     throw createHttpError(404, 'User not found');
-  };
+  }
 
-  const saves = user.savedStories;
+  const total = user.savedStories.length;
 
-  res.status(200).json(saves);
+  const stories = await Story.find({ _id: { $in: user.savedStories } })
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(Number(perPage));
+
+  const totalPages = Math.ceil(total / perPage);
+
+  res.status(200).json({
+    stories,
+    totalStories: total,
+    page,
+    perPage,
+    totalPages,
+  });
 };

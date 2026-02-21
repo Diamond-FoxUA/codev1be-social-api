@@ -44,3 +44,10 @@ export const updateStorySchema = {
     img: Joi.string().default('https://placehold.co/600x400'),
   }).min(1),
 };
+
+export const getSvaedStoriesSchema = {
+  [Segments.QUERY]: Joi.object({
+    page: Joi.number().integer().min(1),
+    perPage: Joi.number().integer().min(4),
+  })
+};
