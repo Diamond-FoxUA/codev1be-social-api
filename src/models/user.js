@@ -5,7 +5,6 @@ const userSchema = mongoose.Schema(
     email: {
       type: String,
       trim: true,
-      unique: true,
       required: true
     },
     password: {
@@ -21,11 +20,11 @@ const userSchema = mongoose.Schema(
       type: String,
       default: "https://ac.goit.global/fullstack/react/default-avatar.jpg",
     },
-    storiesAmount: {
+    articlesAmount: {
       type: Number,
       default: 0,
     },
-    savedStories: [{
+    savedArticles: [{
       story: {
         type: mongoose.Types.ObjectId,
         ref: "Story",

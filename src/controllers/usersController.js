@@ -72,7 +72,7 @@ export const getUserById = async (req, res) => {
   }
 
   const stories = await Story.find({ ownerId: id })
-    .sort({ createdAt: -1 })
+    .sort({ date: -1 })
     .lean();
 
   res.status(200).json({
