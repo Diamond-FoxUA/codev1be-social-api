@@ -14,12 +14,12 @@ export const getAllStories = async (req, res) => {
     storiesQuery.where({category: category});
   }
 
-  const [total, stories] = await Promise.all([
+  const [totalStories, stories] = await Promise.all([
     storiesQuery.clone().countDocuments(),
     storiesQuery.skip(skip).limit(perPage),
   ]);
 
-  const totalPages = Math.ceil(total / perPage);
+  const totalPages = Math.ceil(totalStories / perPage);
 
   res.status(200).json({
     stories,
