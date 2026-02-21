@@ -1,6 +1,6 @@
-import { Schema, model } from 'mongoose';
+import mongoose from "mongoose";
 
-const storySchema = new Schema(
+const storySchema = mongoose.Schema(
   {
     img: {
       type: String,
@@ -12,13 +12,13 @@ const storySchema = new Schema(
       required: true,
       trim: true,
     },
-    article: {
+    description: {
       type: String,
       required: true,
       trim: true,
     },
     category: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Types.ObjectId,
       ref: 'Category',
       required: true,
     },
@@ -27,7 +27,7 @@ const storySchema = new Schema(
       ref: 'User',
       required: true,
     },
-    favouriteCount: {
+    favoriteCount: {
       type: Number,
       default: 0
     },
@@ -37,7 +37,6 @@ const storySchema = new Schema(
       match: /^\d{4}-\d{2}-\d{2}$/,
       default: () => new Date().toISOString().split('T')[0],
     },
-  },
-);
+  });
 
-export const Story = mongoose.model("Story", storySchema);
+export const Story = mongoose.model('Story', storySchema);
