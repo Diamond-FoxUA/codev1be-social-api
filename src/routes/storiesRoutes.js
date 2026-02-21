@@ -12,22 +12,41 @@ import {
   createStorySchema,
   updateStorySchema,
   storyIdSchema,
-  getSvaedStoriesSchema,
+  getAllStoriesSchema,
+  getSavedStoriesSchema,
 } from '../validations/storiesValidation.js';
 import { authenticate } from '../middleware/authenticate.js';
 import { upload } from '../middleware/multer.js';
 
 const router = Router();
 
-router.get('/', getAllStories);
-router.post('/', authenticate, upload.single('storyImage'), celebrate(createStorySchema), createStory);
-router.patch('/:storyId', authenticate, upload.single('storyImage'), celebrate(updateStorySchema), updateStory);
+router.get('/', celebrate(getAllStoriesSchema), getAllStories);
+router.post(
+  '/',
+  authenticate,
+  upload.single('storyImage'),
+  celebrate(createStorySchema),
+  createStory,
+);
+router.patch(
+  '/:storyId',
+  authenticate,
+  upload.single('storyImage'),
+  celebrate(updateStorySchema),
+  updateStory,
+);
 
-router.get('/saved', authenticate, celebrate(getSvaedStoriesSchema), getSavedStories);
+router.get(
+  '/saved',
+  authenticate,
+  celebrate(getSavedStoriesSchema),
+  getSavedStories,
+);
 
-router.route('/:storyId/save')
-    .all(authenticate)
-    .post(celebrate(storyIdSchema), addToFavorites)
-    .delete(celebrate(storyIdSchema), removeFromFavorites);
+router
+  .route('/:storyId/save')
+  .all(authenticate)
+  .post(celebrate(storyIdSchema), addToFavorites)
+  .delete(celebrate(storyIdSchema), removeFromFavorites);
 
 export default router;

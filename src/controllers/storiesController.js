@@ -4,7 +4,30 @@ import { Story } from '../models/story.js';
 import { User } from '../models/user.js';
 
 export const getAllStories = async (req, res) => {
-  res.status(200).json({ message: 'All stories received' });
+  const { page = 1, perPage = 3, category } = req.query;
+
+  const skip = (page - 1) * perPage;
+
+  const storiesQuery = Story.find();
+
+  if (category) {
+    storiesQuery.where({ category: category });
+  }
+
+  const [totalStories, stories] = await Promise.all([
+    storiesQuery.clone().countDocuments(),
+    storiesQuery.skip(skip).limit(perPage),
+  ]);
+
+  const totalPages = Math.ceil(totalStories / perPage);
+
+  res.status(200).json({
+    stories,
+    totalStories,
+    page,
+    perPage,
+    totalPages,
+  });
 };
 
 export const createStory = async (req, res) => {
@@ -60,19 +83,19 @@ export const addToFavorites = async (req, res) => {
     throw createHttpError(404, 'Story not found');
   }
 
-  if (user.favoriteStories.includes(storyId)) {
+  if (user.savedArticles.includes(storyId)) {
     throw createHttpError(409, 'Story already saved');
   }
 
   const updatedUser = await User.findByIdAndUpdate(
     userId,
-    { $addToSet: { favoriteStories: storyId } },
+    { $addToSet: { savedArticles: storyId } },
     { new: true },
   );
 
   await Story.findByIdAndUpdate(storyId, { $inc: { favoriteCount: 1 } });
 
-  res.status(200).json(updatedUser.favoriteStories);
+  res.status(200).json(updatedUser.savedArticles);
 };
 
 export const removeFromFavorites = async (req, res) => {
@@ -89,13 +112,13 @@ export const removeFromFavorites = async (req, res) => {
     throw createHttpError(404, 'Story not found');
   }
 
-  if (!user.favoriteStories.includes(storyId)) {
+  if (!user.savedArticles.includes(storyId)) {
     throw createHttpError(409, 'Story is not in favorites');
   }
 
   const updatedUser = await User.findByIdAndUpdate(
     userId,
-    { $pull: { favoriteStories: storyId } },
+    { $pull: { savedArticles: storyId } },
     { new: true },
   );
 
@@ -104,7 +127,7 @@ export const removeFromFavorites = async (req, res) => {
     { $inc: { favoriteCount: -1 } },
   );
 
-  res.status(200).json(updatedUser.favoriteStories);
+  res.status(200).json(updatedUser.savedArticles);
 };
 
 export const getSavedStories = async (req, res) => {
@@ -117,9 +140,9 @@ export const getSavedStories = async (req, res) => {
     throw createHttpError(404, 'User not found');
   }
 
-  const total = user.savedStories.length;
+  const total = user.savedArticles.length;
 
-  const stories = await Story.find({ _id: { $in: user.savedStories } })
+  const stories = await Story.find({ _id: { $in: user.savedArticles } })
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(Number(perPage));

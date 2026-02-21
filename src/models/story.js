@@ -27,7 +27,7 @@ const storySchema = mongoose.Schema(
       ref: 'User',
       required: true,
     },
-    favouriteCount: {
+    favoriteCount: {
       type: Number,
       default: 0
     },

@@ -8,6 +8,14 @@ const objectIdValidator = (value, helpers) => {
   return value;
 };
 
+export const getAllStoriesSchema = {
+  [Segments.QUERY]: Joi.object({
+    page: Joi.number().integer().min(1),
+    perPage: Joi.number().integer().min(5).max(20),
+    category: Joi.string(),
+  }),
+};
+
 export const storyIdSchema = {
   [Segments.PARAMS]: Joi.object({
     storyId: Joi.string().custom(objectIdValidator).required(),
@@ -45,9 +53,9 @@ export const updateStorySchema = {
   }).min(1),
 };
 
-export const getSvaedStoriesSchema = {
+export const getSavedStoriesSchema = {
   [Segments.QUERY]: Joi.object({
     page: Joi.number().integer().min(1),
     perPage: Joi.number().integer().min(4),
-  })
+  }),
 };
