@@ -60,19 +60,19 @@ export const addToFavorites = async (req, res) => {
     throw createHttpError(404, 'Story not found');
   }
 
-  if (user.favoriteStories.includes(storyId)) {
+  if (user.savedArticles.includes(storyId)) {
     throw createHttpError(409, 'Story already saved');
   }
 
   const updatedUser = await User.findByIdAndUpdate(
     userId,
-    { $addToSet: { favoriteStories: storyId } },
+    { $addToSet: { savedArticles: storyId } },
     { new: true },
   );
 
   await Story.findByIdAndUpdate(storyId, { $inc: { favoriteCount: 1 } });
 
-  res.status(200).json(updatedUser.favoriteStories);
+  res.status(200).json(updatedUser.savedArticles);
 };
 
 export const removeFromFavorites = async (req, res) => {
@@ -89,13 +89,13 @@ export const removeFromFavorites = async (req, res) => {
     throw createHttpError(404, 'Story not found');
   }
 
-  if (!user.favoriteStories.includes(storyId)) {
+  if (!user.savedArticles.includes(storyId)) {
     throw createHttpError(409, 'Story is not in favorites');
   }
 
   const updatedUser = await User.findByIdAndUpdate(
     userId,
-    { $pull: { favoriteStories: storyId } },
+    { $pull: { savedArticles: storyId } },
     { new: true },
   );
 
@@ -104,5 +104,5 @@ export const removeFromFavorites = async (req, res) => {
     { $inc: { favoriteCount: -1 } },
   );
 
-  res.status(200).json(updatedUser.favoriteStories);
+  res.status(200).json(updatedUser.savedArticles);
 };
