@@ -39,27 +39,6 @@ const userSchema = mongoose.Schema(
       trim: true,
     }
   },
-  password: {
-    type: String,
-    trim: true,
-    required: true,
-  },
-  name: {
-    type: String,
-    trim: true,
-  },
-  avatarUrl: {
-    type: String,
-    required: false,
-    default: 'https://ac.goit.global/fullstack/react/default-avatar.jpg',
-  },
-  articlesAmount: {
-    type: Number,
-  },
-  description: {
-    type: String,
-    required: false,
-  },
 });
 
 userSchema.methods.toJSON = function () {
