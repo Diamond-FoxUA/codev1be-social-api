@@ -1,8 +1,10 @@
 import { Router } from "express";
 import { celebrate } from "celebrate";
-import { getUsers, getUserById, getCurrentUser, updateUser } from "../controllers/usersController.js";
+import { getUsers, getUserById, getCurrentUser, updateUser, updateUserAvatar } from "../controllers/usersController.js";
 import { getUsersSchema, userIdSchema, updateUserSchema } from "../validations/usersValidation.js";
 import { authenticate } from '../middleware/authenticate.js';
+import { upload } from '../middleware/multer.js';
+
 
 const router = Router();
 
@@ -11,5 +13,6 @@ router.get("/:userId", celebrate(userIdSchema), getUserById);
 
 router.get('/me', authenticate, getCurrentUser);
 router.patch('/me', authenticate, celebrate(updateUserSchema), updateUser);
+router.patch('/avatar', authenticate, upload.single("avatar"), updateUserAvatar);
 
 export default router;
