@@ -6,6 +6,7 @@ const storySchema = mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      default: 'https://via.placeholder.com/400x300.png?text=No+Image',
     },
     title: {
       type: String,
