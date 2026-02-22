@@ -53,7 +53,7 @@ export const updateStorySchema = {
   }).min(1),
 };
 
-export const getSavedStoriesSchema = {
+export const getFavouriteStoriesSchema = {
   [Segments.QUERY]: Joi.object({
     page: Joi.number().integer().min(1),
     perPage: Joi.number().integer().min(4),
