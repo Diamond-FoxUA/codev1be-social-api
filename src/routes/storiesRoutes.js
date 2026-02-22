@@ -7,6 +7,7 @@ import {
   createStory,
   updateStory,
   getFavouriteStories,
+  getMyStories,
 } from '../controllers/storiesController.js';
 import {
   createStorySchema,
@@ -26,7 +27,7 @@ router.get('/', celebrate(getAllStoriesSchema), getAllStories);
 router.post('/', authenticate, upload.single('storyImage'), celebrate(createStorySchema), createStory);
 router.patch('/:storyId', authenticate, upload.single('storyImage'), celebrate(updateStorySchema), updateStory);
 
-router.get('/saved', authenticate, celebrate(getFavouriteStoriesSchema), getFavoriteStories);
+router.get('/saved', authenticate, celebrate(getFavouriteStoriesSchema), getFavouriteStories);
 router.get("/me", authenticate, celebrate(getMyStoriesSchema), getMyStories);
 
 router
