@@ -36,6 +36,7 @@ export const createStorySchema = {
     img: Joi.string().default('https://placehold.co/600x400'),
   }),
 };
+
 export const updateStorySchema = {
   [Segments.PARAMS]: Joi.object({
     storyId: Joi.string().custom(objectIdValidator).required(),

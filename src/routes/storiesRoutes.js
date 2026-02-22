@@ -12,6 +12,7 @@ import {
   createStorySchema,
   updateStorySchema,
   storyIdSchema,
+  getMyStoriesSchema,
   getAllStoriesSchema,
   getFavouriteStoriesSchema,
 } from '../validations/storiesValidation.js';
@@ -21,27 +22,12 @@ import { upload } from '../middleware/multer.js';
 const router = Router();
 
 router.get('/', celebrate(getAllStoriesSchema), getAllStories);
-router.post(
-  '/',
-  authenticate,
-  upload.single('storyImage'),
-  celebrate(createStorySchema),
-  createStory,
-);
-router.patch(
-  '/:storyId',
-  authenticate,
-  upload.single('storyImage'),
-  celebrate(updateStorySchema),
-  updateStory,
-);
 
-router.get(
-  '/saved',
-  authenticate,
-  celebrate(getFavouriteStoriesSchema),
-  getFavouriteStories,
-);
+router.post('/', authenticate, upload.single('storyImage'), celebrate(createStorySchema), createStory);
+router.patch('/:storyId', authenticate, upload.single('storyImage'), celebrate(updateStorySchema), updateStory);
+
+router.get('/saved', authenticate, celebrate(getFavouriteStoriesSchema), getFavoriteStories);
+router.get("/me", authenticate, celebrate(getMyStoriesSchema), getMyStories);
 
 router
   .route('/:storyId/save')
