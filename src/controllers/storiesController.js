@@ -1,5 +1,5 @@
 import createHttpError from 'http-errors';
-import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
+import { saveFileToCloudinary } from '../utils/savefileToCloudinary.js';
 import { Story } from '../models/story.js';
 import { User } from '../models/user.js';
 
