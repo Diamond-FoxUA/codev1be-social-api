@@ -60,3 +60,10 @@ export const getFavouriteStoriesSchema = {
     perPage: Joi.number().integer().min(4),
   }),
 };
+
+export const getMyStoriesSchema = {
+  [Segments.QUERY]: Joi.object({
+    page: Joi.number().integer().min(1),
+    perPage: Joi.number().integer().min(4),
+  }),
+};
