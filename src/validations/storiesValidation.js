@@ -11,7 +11,7 @@ const objectIdValidator = (value, helpers) => {
 export const getAllStoriesSchema = {
   [Segments.QUERY]: Joi.object({
     page: Joi.number().integer().min(1),
-    perPage: Joi.number().integer().min(5).max(20),
+    perPage: Joi.number().integer().min(3).max(9),
     category: Joi.string(),
   }),
 };
