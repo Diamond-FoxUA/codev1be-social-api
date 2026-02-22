@@ -4,7 +4,9 @@ import { Story } from '../models/story.js';
 import { User } from '../models/user.js';
 
 export const getAllStories = async (req, res) => {
-  const { page = 1, perPage = 3, category } = req.query;
+  const { category } = req.query;
+  const page = Number(req.query.page) || 1;
+  const perPage = Number(req.query.perPage) || 3;
 
   const skip = (page - 1) * perPage;
 
@@ -66,7 +68,7 @@ export const updateStory = async (req, res) => {
   if (!story) {
     throw createHttpError(404, 'Story not found');
   }
-  res.status(200).json({ msg: 'Updated!' });
+  res.status(200).json(story);
 };
 
 export const addToFavorites = async (req, res) => {
