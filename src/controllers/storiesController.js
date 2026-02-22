@@ -131,22 +131,26 @@ export const removeFromFavorites = async (req, res) => {
 };
 
 export const getSavedStories = async (req, res) => {
-  const { page = 1, perPage = 4 } = req.query;
-
+  const page = Number(req.query.page) || 1;
+  const perPage = Number(req.query.perPage) || 4;
   const skip = (page - 1) * perPage;
+
   const user = await User.findById(req.user._id);
 
-  if (!user) {
-    throw createHttpError(404, 'User not found');
-  }
+  if (!user) throw createHttpError(404, 'User not found');
+
+  const reversedIds = [...user.savedArticles].reverse();
+
+  const pagedIds = reversedIds.slice(skip, skip + perPage);
+
+  const storiesRaw = await Story.find({ _id: { $in: pagedIds } })
+    .populate('ownerId', 'name avatar')
+    .lean();
+
+  const storiesMap = new Map(storiesRaw.map(s => [s._id.toString(), s]));
+  const stories = pagedIds.map(id => storiesMap.get(id.toString())).filter(Boolean);
 
   const total = user.savedArticles.length;
-
-  const stories = await Story.find({ _id: { $in: user.savedArticles } })
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(Number(perPage));
-
   const totalPages = Math.ceil(total / perPage);
 
   res.status(200).json({
