@@ -55,14 +55,14 @@ export const getUsers = async (req, res) => {
 
 
 export const getUserById = async (req, res) => {
-  const { id } = req.params;
+  const { userId } = req.params;
 
-  const user = await User.findById(id).lean();
+  const user = await User.findById(userId).lean();
   if (!user) {
     throw createHttpError(404, "User not found");
   }
 
-  const stories = await Story.find({ ownerId: id })
+  const stories = await Story.find({ ownerId: userId })
     .sort({ date: -1 })
     .lean();
 
