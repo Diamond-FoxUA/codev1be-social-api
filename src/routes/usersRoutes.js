@@ -1,24 +1,18 @@
-import { Router } from 'express';
-
-import { getAllUsers } from '../controllers/usersController.js';
-import { getCurrentUser } from '../controllers/usersController.js';
-import { authenticate } from '../middleware/authMiddleware.js';
-import { updateUserAvatar } from '../controllers/usersController.js';
-import { upload } from "../middleware/multer.js";
+import { Router } from "express";
+import { celebrate } from "celebrate";
+import { getUsers, getUserById, getCurrentUser, updateUser, updateUserAvatar } from "../controllers/usersController.js";
+import { getUsersSchema, userIdSchema, updateUserSchema } from "../validations/usersValidation.js";
+import { authenticate } from '../middleware/authenticate.js';
+import { upload } from '../middleware/multer.js';
 
 
 const router = Router();
-// example
-router.get('/api/users', getAllUsers);
-// endpoint for getting current user (user profile with saved stories)
-router.get('/api/users/me', authenticate, getCurrentUser);
 
-router.patch(
-  '/api/users/avatar',
-  authenticate,
-  upload.single("avatar"),
-  updateUserAvatar,
-);
+router.get("/", celebrate(getUsersSchema), getUsers);
+router.get("/:userId", celebrate(userIdSchema), getUserById);
 
+router.get('/me', authenticate, getCurrentUser);
+router.patch('/me', authenticate, celebrate(updateUserSchema), updateUser);
+router.patch('/avatar', authenticate, upload.single("avatar"), updateUserAvatar);
 
 export default router;
