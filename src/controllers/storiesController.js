@@ -1,5 +1,5 @@
 import createHttpError from 'http-errors';
-import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
+import { saveFileToCloudinary } from '../utils/savefileToCloudinary.js';
 import { Story } from '../models/story.js';
 import { User } from '../models/user.js';
 
@@ -108,17 +108,18 @@ export const removeFromFavorites = async (req, res) => {
 };
 
 export const getMyStories = async (req, res) => {
-  const { page = 1, perPage = 4 } = req.query;
-
+  const page = Number(req.query.page) || 1;
+  const perPage = Number(req.query.perPage) || 4;
   const skip = (page - 1) * perPage;
 
-  const storiesQuery = Story.find();
-
-  storiesQuery.where({ ownerId: req.user._id }).populate('ownerId').sort({ createdAt: -1 });
+  const storyQuery = Story.find({ ownerId: req.user._id })
+    .populate('ownerId', 'name avatar')
+    .sort({ createdAt: -1 })
+    .lean();
 
   const [total, stories] = await Promise.all([
-    storiesQuery.clone().countDocuments(),
-    storiesQuery.skip(skip).limit(perPage),
+    storyQuery.clone().countDocuments(),
+    storyQuery.skip(skip).limit(perPage),
   ]);
 
   const totalPages = Math.ceil(total / perPage);
