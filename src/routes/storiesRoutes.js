@@ -6,14 +6,14 @@ import {
   removeFromFavorites,
   createStory,
   updateStory,
-  getSavedStories,
+  getFavouriteStories,
 } from '../controllers/storiesController.js';
 import {
   createStorySchema,
   updateStorySchema,
   storyIdSchema,
   getAllStoriesSchema,
-  getSavedStoriesSchema,
+  getFavouriteStoriesSchema,
 } from '../validations/storiesValidation.js';
 import { authenticate } from '../middleware/authenticate.js';
 import { upload } from '../middleware/multer.js';
@@ -39,8 +39,8 @@ router.patch(
 router.get(
   '/saved',
   authenticate,
-  celebrate(getSavedStoriesSchema),
-  getSavedStories,
+  celebrate(getFavouriteStoriesSchema),
+  getFavouriteStories,
 );
 
 router
