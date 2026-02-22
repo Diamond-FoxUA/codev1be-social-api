@@ -6,7 +6,7 @@ import {
   removeFromFavorites,
   createStory,
   updateStory,
-  getMyStories,
+  getFavouriteStories,
 } from '../controllers/storiesController.js';
 import {
   createStorySchema,
@@ -14,6 +14,7 @@ import {
   storyIdSchema,
   getMyStoriesSchema,
   getAllStoriesSchema,
+  getFavouriteStoriesSchema,
 } from '../validations/storiesValidation.js';
 import { authenticate } from '../middleware/authenticate.js';
 import { upload } from '../middleware/multer.js';
@@ -24,12 +25,14 @@ router.get('/', celebrate(getAllStoriesSchema), getAllStories);
 
 router.post('/', authenticate, upload.single('storyImage'), celebrate(createStorySchema), createStory);
 router.patch('/:storyId', authenticate, upload.single('storyImage'), celebrate(updateStorySchema), updateStory);
-router.get('/saved', authenticate, getFavoriteStories);
+
+router.get('/saved', authenticate, celebrate(getFavouriteStoriesSchema), getFavoriteStories);
 router.get("/me", authenticate, celebrate(getMyStoriesSchema), getMyStories);
 
-router.route('/:storyId/save')
-    .all(authenticate)
-    .post(celebrate(storyIdSchema), addToFavorites)
-    .delete(celebrate(storyIdSchema), removeFromFavorites);
+router
+  .route('/:storyId/save')
+  .all(authenticate)
+  .post(celebrate(storyIdSchema), addToFavorites)
+  .delete(celebrate(storyIdSchema), removeFromFavorites);
 
 export default router;

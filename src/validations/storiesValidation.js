@@ -13,7 +13,7 @@ export const getAllStoriesSchema = {
     page: Joi.number().integer().min(1),
     perPage: Joi.number().integer().min(5).max(20),
     category: Joi.string(),
-  })
+  }),
 };
 
 export const storyIdSchema = {
@@ -54,9 +54,9 @@ export const updateStorySchema = {
   }).min(1),
 };
 
-export const getMyStoriesSchema = {
+export const getFavouriteStoriesSchema = {
   [Segments.QUERY]: Joi.object({
     page: Joi.number().integer().min(1),
-    perPage: Joi.number().integer().min(4).max(20),
-  })
+    perPage: Joi.number().integer().min(4),
+  }),
 };
