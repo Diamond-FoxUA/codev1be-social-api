@@ -129,7 +129,7 @@ export const removeFromFavorites = async (req, res) => {
     throw createHttpError(409, 'Story is not in favorites');
   }
 
-  const updatedUser = await User.findByIdAndUpdate(
+  await User.findByIdAndUpdate(
     userId,
     { $pull: { savedArticles: storyId } },
     { new: true },
@@ -140,7 +140,7 @@ export const removeFromFavorites = async (req, res) => {
     { $inc: { favoriteCount: -1 } },
   );
 
-  res.status(200).json(updatedUser.savedArticles);
+  res.status(204).json();
 };
 
 export const getMyStories = async (req, res) => {
