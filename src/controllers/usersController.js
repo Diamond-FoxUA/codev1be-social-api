@@ -5,50 +5,22 @@ import { saveFileToCloudinary } from '../utils/savefileToCloudinary.js';
 
 export const getUsers = async (req, res) => {
   const page = Number(req.query.page) || 1;
-  const perPage = Number(req.query.perPage) || 4;
+  const perPage = Number(req.query.perPage) || 10;
   const skip = (page - 1) * perPage;
 
-  const totalAuthorsResult = await Story.aggregate([
-    { $group: { _id: "$ownerId" } },
-    { $count: "count" }
-  ]);
-  const totalAuthors = totalAuthorsResult[0]?.count || 0;
-  const totalPages = Math.ceil(totalAuthors / perPage);
+  const totalAuthors = await User.countDocuments();
 
-  const users = await Story.aggregate([
-    {
-      $group: {
-        _id: "$ownerId",
-        totalFavorites: { $sum: "$favoriteCount" }
-      }
-    },
-    { $sort: { totalFavorites: -1 } },
-    { $skip: skip },
-    { $limit: perPage },
-    {
-      $lookup: {
-        from: "users",
-        localField: "_id",
-        foreignField: "_id",
-        as: "user"
-      }
-    },
-    { $unwind: "$user" },
-    {
-      $project: {
-        _id: "$user._id",
-        name: "$user.name",
-        avatarUrl: "$user.avatarUrl",
-        totalFavorites: 1
-      }
-    }
-  ]);
+  const users = await User.find()
+    .sort({ _id: 1 })
+    .skip(skip)
+    .limit(perPage)
+    .select('name description avatarUrl articlesAmount savedArticles');
 
   res.status(200).json({
     page,
     perPage,
     totalAuthors,
-    totalPages,
+    totalPages: Math.ceil(totalAuthors / perPage),
     users
   });
 };
@@ -73,13 +45,15 @@ export const getUserById = async (req, res) => {
 };
 
 export const getCurrentUser = async (req, res) => {
-  const { _id, name, avatarUrl, description } = req.user;
+  const { _id, name, avatarUrl, description, articlesAmount, savedArticles } = req.user;
 
   res.status(200).json({
     _id,
     name,
     description,
     avatarUrl,
+    articlesAmount,
+    savedArticles
   });
 };
 export const updateUser = async (req, res) => {
@@ -115,13 +89,13 @@ export const updateUserAvatar = async (req, res, next) => {
 
     const user = await User.findByIdAndUpdate(
       req.user._id,
-      { avatar: result.secure_url },
+      { avatarUrl: result.secure_url },
       { new: true }
     );
 
     if (!user) throw createHttpError(404, 'User not found');
 
-    res.status(200).json({ url: user.avatar });
+    res.status(200).json({ url: user.avatarUrl });
   } catch (err) {
     next(err);
   }

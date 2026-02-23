@@ -9,10 +9,9 @@ import { upload } from '../middleware/multer.js';
 const router = Router();
 
 router.get("/", celebrate(getUsersSchema), getUsers);
-router.get("/:userId", celebrate(userIdSchema), getUserById);
-
 router.get('/me', authenticate, getCurrentUser);
 router.patch('/me', authenticate, celebrate(updateUserSchema), updateUser);
 router.patch('/avatar', authenticate, upload.single("avatar"), updateUserAvatar);
+router.get("/:userId", celebrate(userIdSchema), getUserById);
 
 export default router;
