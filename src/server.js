@@ -15,7 +15,12 @@ import { connectMongoDB } from './db/connectMongoDB.js';
 const app = express();
 
 app.use(express.json());
-app.use(cors({ credentials: true }));
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 app.use(helmet());
 app.use(logger());
 app.use(cookieParser());
