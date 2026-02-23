@@ -32,6 +32,17 @@ export const getAllStories = async (req, res) => {
   });
 };
 
+export const getStoryById = async (req, res) => {
+  const { storyId } = req.params;
+
+  const story = await Story.findById(storyId);
+  if (!story) {
+    throw createHttpError(404, "Story not found");
+  }
+
+  res.status(200).json(story);
+};
+
 export const createStory = async (req, res) => {
   const story = await Story.create({
     ...req.body, // title, description, category, date и т.д.
