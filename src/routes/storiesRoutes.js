@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { celebrate } from 'celebrate';
 import {
   getAllStories,
+  getStoryById,
   addToFavorites,
   removeFromFavorites,
   createStory,
@@ -23,12 +24,13 @@ import { upload } from '../middleware/multer.js';
 const router = Router();
 
 router.get('/', celebrate(getAllStoriesSchema), getAllStories);
-
-router.post('/', authenticate, upload.single('storyImage'), celebrate(createStorySchema), createStory);
-router.patch('/:storyId', authenticate, upload.single('storyImage'), celebrate(updateStorySchema), updateStory);
-
 router.get('/saved', authenticate, celebrate(getFavouriteStoriesSchema), getFavouriteStories);
 router.get("/me", authenticate, celebrate(getMyStoriesSchema), getMyStories);
+
+router.post('/', authenticate, celebrate(createStorySchema), upload.single('storyImage'), createStory);
+router.get('/:storyId', celebrate(storyIdSchema), getStoryById);
+router.patch('/:storyId', authenticate, celebrate(updateStorySchema), upload.single('storyImage'), updateStory);
+
 
 router
   .route('/:storyId/save')

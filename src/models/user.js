@@ -5,7 +5,8 @@ const userSchema = mongoose.Schema(
     email: {
       type: String,
       trim: true,
-      required: true
+      required: true,
+      unique: true,
     },
     password: {
       type: String,
@@ -24,16 +25,12 @@ const userSchema = mongoose.Schema(
       type: Number,
       default: 0,
     },
-    savedArticles: [{
-      story: {
+    savedArticles: [
+      {
         type: mongoose.Types.ObjectId,
-        ref: "Story",
-      },
-      savedAt: {
-        type: Date,
-        default: Date.now,
+        ref: 'Story'
       }
-    }],
+    ],
     description: {
       type: String,
       trim: true,
