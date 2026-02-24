@@ -11,18 +11,21 @@ export const getAllStories = async (req, res) => {
 
   const skip = (page - 1) * perPage;
 
-  const storiesQuery = Story.find()
-    .populate('ownerId', 'name avatarUrl')
-    .populate('category', 'name')
-    .lean();
+  const filter = {};
 
   if (category) {
-    storiesQuery.where({ category: category });
+    filter.category = category;
   }
 
+  const baseQuery = Story.find(filter)
+    .populate('ownerId', 'name avatarUrl')
+    .populate('category', 'name')
+    .sort({ createdAt: -1 })
+    .lean();
+
   const [totalStories, stories] = await Promise.all([
-    storiesQuery.clone().countDocuments(),
-    storiesQuery.skip(skip).limit(perPage),
+    Story.countDocuments(filter),
+    baseQuery.skip(skip).limit(perPage),
   ]);
 
   const totalPages = Math.ceil(totalStories / perPage);
