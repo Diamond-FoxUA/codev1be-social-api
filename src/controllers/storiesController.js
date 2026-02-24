@@ -2,6 +2,7 @@ import createHttpError from 'http-errors';
 import { saveFileToCloudinary } from '../utils/savefileToCloudinary.js';
 import { Story } from '../models/story.js';
 import { User } from '../models/user.js';
+import { Category } from '../models/category.js';
 
 export const getAllStories = async (req, res) => {
   const { category } = req.query;
@@ -10,15 +11,21 @@ export const getAllStories = async (req, res) => {
 
   const skip = (page - 1) * perPage;
 
-  const storiesQuery = Story.find();
+  const filter = {};
 
   if (category) {
-    storiesQuery.where({ category: category });
+    filter.category = category;
   }
 
+  const baseQuery = Story.find(filter)
+    .populate('ownerId', 'name avatarUrl')
+    .populate('category', 'name')
+    .sort({ createdAt: -1 })
+    .lean();
+
   const [totalStories, stories] = await Promise.all([
-    storiesQuery.clone().countDocuments(),
-    storiesQuery.skip(skip).limit(perPage),
+    Story.countDocuments(filter),
+    baseQuery.skip(skip).limit(perPage),
   ]);
 
   const totalPages = Math.ceil(totalStories / perPage);
@@ -37,7 +44,7 @@ export const getStoryById = async (req, res) => {
 
   const story = await Story.findById(storyId);
   if (!story) {
-    throw createHttpError(404, "Story not found");
+    throw createHttpError(404, 'Story not found');
   }
 
   res.status(200).json(story);
@@ -149,7 +156,8 @@ export const getMyStories = async (req, res) => {
   const skip = (page - 1) * perPage;
 
   const storyQuery = Story.find({ ownerId: req.user._id })
-    .populate('ownerId', 'name avatar')
+    .populate('ownerId', 'name avatarUrl')
+    .populate('category', 'name')
     .sort({ createdAt: -1 })
     .lean();
 
@@ -165,7 +173,7 @@ export const getMyStories = async (req, res) => {
     totalStories: total,
     page,
     perPage,
-    totalPages
+    totalPages,
   });
 };
 
@@ -183,11 +191,14 @@ export const getFavouriteStories = async (req, res) => {
   const pagedIds = reversedIds.slice(skip, skip + perPage);
 
   const storiesRaw = await Story.find({ _id: { $in: pagedIds } })
-    .populate('ownerId', 'name avatar')
+    .populate('ownerId', 'name avatarUrl')
+    .populate('category', 'name')
     .lean();
 
-  const storiesMap = new Map(storiesRaw.map(s => [s._id.toString(), s]));
-  const stories = pagedIds.map(id => storiesMap.get(id.toString())).filter(Boolean);
+  const storiesMap = new Map(storiesRaw.map((s) => [s._id.toString(), s]));
+  const stories = pagedIds
+    .map((id) => storiesMap.get(id.toString()))
+    .filter(Boolean);
 
   const total = user.savedArticles.length;
   const totalPages = Math.ceil(total / perPage);
