@@ -15,8 +15,8 @@ export const userIdSchema = {
 };
 
 export const paginationQuerySchema = Joi.object({
-  page: Joi.number().integer().min(1).default(1),
-  perPage: Joi.number().integer().min(4).max(9).default(9),
+  page: Joi.number().integer().min(1),
+  perPage: Joi.number().integer().min(4).max(9),
 });
 
 export const getUsersSchema = {
