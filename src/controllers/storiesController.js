@@ -2,6 +2,7 @@ import createHttpError from 'http-errors';
 import { saveFileToCloudinary } from '../utils/savefileToCloudinary.js';
 import { Story } from '../models/story.js';
 import { User } from '../models/user.js';
+import { Category } from '../models/category.js';
 
 export const getAllStories = async (req, res) => {
   const { category } = req.query;
@@ -26,7 +27,7 @@ export const getAllStories = async (req, res) => {
     Story.countDocuments(filter),
     baseQuery.skip(skip).limit(perPage),
   ]);
-  if (!stories) {
+  if (stories.length === 0) {
     throw createHttpError(404, "No stories found");
   }
 
@@ -47,7 +48,7 @@ export const getPopularStories = async (req, res) => {
     .sort({ favoriteCount: -1, createdAt: -1 })
     .limit(3)
     .lean();
-  if (!stories) {
+  if (stories.length === 0) {
     throw createHttpError(404, "No stories found");
   }
 
@@ -59,29 +60,44 @@ export const getPopularStories = async (req, res) => {
 
 export const getStoryById = async (req, res) => {
   const { storyId } = req.params;
-
-  const story = await Story.findById(storyId);
+  const story = await Story.findById(storyId)
+    .populate('ownerId', 'name avatarUrl')
+    .populate('category', 'name');
   if (!story) {
-    throw createHttpError(404, 'Story not found');
+    throw createHttpError(404, "Story not found");
   }
 
   res.status(200).json(story);
 };
 
 export const createStory = async (req, res) => {
+
   const story = await Story.create({
-    ...req.body, // title, description, category, date и т.д.
+    ...req.body,
     ownerId: req.user._id,
   });
 
+  await User.findByIdAndUpdate(
+    req.user._id,
+    { $inc: { articlesAmount: 1 } }
+  );
+
   if (req.file) {
     const publicId = `story-${story._id}`;
-    const result = await saveFileToCloudinary(req.file.buffer, publicId);
+    const result = await saveFileToCloudinary(
+      req.file.buffer,
+      publicId
+    );
     story.img = result.secure_url;
-    await story.save(); // save link for story
+    await story.save();
   }
 
-  res.status(201).json(story);
+  const populatedStory = await Story.findById(story._id)
+    .populate("ownerId", "name avatarUrl")
+    .populate("category", "name")
+    .lean();
+
+  res.status(201).json(populatedStory);
 };
 
 export const updateStory = async (req, res) => {
