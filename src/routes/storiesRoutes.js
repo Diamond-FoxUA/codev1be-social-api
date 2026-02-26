@@ -2,13 +2,14 @@ import { Router } from 'express';
 import { celebrate } from 'celebrate';
 import {
   getAllStories,
+  getPopularStories,
   getStoryById,
-  addToFavorites,
-  removeFromFavorites,
+  getMyStories,
   createStory,
   updateStory,
   getFavouriteStories,
-  getMyStories,
+  addToFavorites,
+  removeFromFavorites,
 } from '../controllers/storiesController.js';
 import {
   createStorySchema,
@@ -25,6 +26,9 @@ const router = Router();
 router.get('/',
   celebrate(getAllStoriesSchema),
   getAllStories);
+router.get('/popular',
+  getPopularStories,
+);
 router.get('/saved',
   authenticate,
   celebrate(paginationSchema),
