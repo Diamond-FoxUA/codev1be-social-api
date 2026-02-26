@@ -26,6 +26,9 @@ export const getAllStories = async (req, res) => {
     Story.countDocuments(filter),
     baseQuery.skip(skip).limit(perPage),
   ]);
+  if (!stories) {
+    throw createHttpError(404, "No stories found");
+  }
 
   const totalPages = Math.ceil(totalStories / perPage);
 
@@ -35,6 +38,22 @@ export const getAllStories = async (req, res) => {
     page,
     perPage,
     totalPages,
+  });
+};
+
+export const getPopularStories = async (req, res) => {
+  const stories = await Story.find()
+    .populate("ownerId", "name avatarUrl")
+    .sort({ favoriteCount: -1, createdAt: -1 })
+    .limit(3)
+    .lean();
+  if (!stories) {
+    throw createHttpError(404, "No stories found");
+  }
+
+  res.status(200).json({
+    stories,
+    totalStories: stories.length
   });
 };
 
