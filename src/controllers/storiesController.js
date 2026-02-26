@@ -2,7 +2,6 @@ import createHttpError from 'http-errors';
 import { saveFileToCloudinary } from '../utils/savefileToCloudinary.js';
 import { Story } from '../models/story.js';
 import { User } from '../models/user.js';
-import { Category } from '../models/category.js';
 
 export const getAllStories = async (req, res) => {
   const { category } = req.query;

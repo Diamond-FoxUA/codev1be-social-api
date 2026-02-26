@@ -3,7 +3,7 @@ import { isValidObjectId } from "mongoose";
 
 const objectIdValidator = (value, helpers) => {
   if(!isValidObjectId(value)) {
-    return helpers.error("any.invalid");
+    return helpers.message('This id is not valid');
   }
   return value;
 };
@@ -14,18 +14,20 @@ export const userIdSchema = {
   }),
 };
 
+export const paginationQuerySchema = Joi.object({
+  page: Joi.number().integer().min(1).default(1),
+  perPage: Joi.number().integer().min(4).max(9).default(9),
+});
+
 export const getUsersSchema = {
-  [Segments.QUERY]: Joi.object({
-    page: Joi.number().integer().required(),
-    perPage: Joi.number().integer().min(4).max(9).required(),
-  }),
+  [Segments.QUERY]: paginationQuerySchema,
 };
 
 export const updateUserSchema = {
   [Segments.BODY]: Joi.object({
-    name: Joi.string().min(3).max(32),
-    description: Joi.string().max(150).allow(''),
-  }),
+    name: Joi.string().trim().min(3).max(32),
+    description: Joi.string().trim().max(150).allow(''),
+  }).min(1),
 };
 
 
