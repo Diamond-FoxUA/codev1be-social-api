@@ -9,7 +9,7 @@ export const getAllStories = async (req, res) => {
 
 export const createStory = async (req, res) => {
   const story = await Story.create({
-    ...req.body, // title, description, category, date и т.д.
+    ...req.body, // title, article, category, date и т.д.
     ownerId: req.user._id,
   });
 
@@ -43,7 +43,7 @@ export const updateStory = async (req, res) => {
   if (!story) {
     throw createHttpError(404, 'Story not found');
   }
-  res.status(200).json({ msg: 'Updated!' });
+  res.status(200).json(story);
 };
 
 export const addToFavorites = async (req, res) => {
