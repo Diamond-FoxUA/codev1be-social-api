@@ -1,12 +1,12 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const userSchema = mongoose.Schema(
   {
     email: {
       type: String,
       trim: true,
+      required: true,
       unique: true,
-      required: true
     },
     password: {
       type: String,
@@ -19,15 +19,21 @@ const userSchema = mongoose.Schema(
     },
     avatarUrl: {
       type: String,
-      required: false,
       default: "https://ac.goit.global/fullstack/react/default-avatar.jpg",
     },
     articlesAmount: {
       type: Number,
+      default: 0,
     },
+    savedArticles: [
+      {
+        type: mongoose.Types.ObjectId,
+        ref: 'Story'
+      }
+    ],
     description: {
       type: String,
-      required: false,
+      trim: true,
     }
   },
 );
@@ -38,4 +44,4 @@ userSchema.methods.toJSON = function () {
   return obj;
 };
 
-export const User = mongoose.model("User", userSchema);
+export const User = mongoose.model('User', userSchema);
