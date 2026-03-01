@@ -20,7 +20,7 @@ export const createStorySchema = {
       'string.empty': 'Title is required',
       'string.max': 'Title must be at most 80 characters',
     }),
-    description: Joi.string().min(5).max(2500).required().messages({
+    article: Joi.string().min(5).max(2500).required().messages({
       'string.empty': 'Description is required',
       'string.max': 'Description must be at most 2500 characters',
     }),
@@ -36,11 +36,11 @@ export const updateStorySchema = {
     title: Joi.string().min(5).max(80).messages({
       'string.max': 'Title must be at most 80 characters',
     }),
-    description: Joi.string().min(5).max(2500).messages({
+    article: Joi.string().min(5).max(2500).messages({
       'string.empty': 'Description is required',
       'string.max': 'Description must be at most 2500 characters',
     }),
     category: Joi.string().custom(objectIdValidator),
-    img: Joi.string().default('https://placehold.co/600x400'),
+    img: Joi.string(),
   }).min(1),
 };
