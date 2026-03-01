@@ -10,6 +10,7 @@ import { notFoundHandler } from './middleware/notFoundHandler.js';
 import storiesRoutes from './routes/storiesRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import usersRoutes from './routes/usersRoutes.js';
+import categoriesRouter from './routes/categoriesRoutes.js';
 import { connectMongoDB } from './db/connectMongoDB.js';
 
 const app = express();
@@ -44,9 +45,10 @@ app.use(cookieParser());
 
 const PORT = process.env.PORT ?? 3000;
 
-app.use("/api/auth", authRoutes);
-app.use("/api/stories", storiesRoutes);
-app.use("/api/users", usersRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/stories', storiesRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/api/categories', categoriesRouter);
 
 app.use(notFoundHandler);
 app.use(errors());
