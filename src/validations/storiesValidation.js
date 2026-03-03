@@ -12,7 +12,6 @@ export const storyIdParamsSchema = Joi.object({
   storyId: Joi.string().custom(objectIdValidator).required(),
 });
 
-
 export const storyIdSchema = {
   [Segments.PARAMS]: storyIdParamsSchema,
 };
@@ -35,15 +34,19 @@ export const getAllStoriesSchema = {
 export const createStorySchema = {
   [Segments.BODY]: Joi.object({
     title: Joi.string().min(5).max(80).required().messages({
-      'string.empty': 'Title is required',
-      'string.max': 'Title must be at most 80 characters',
+      'string.empty': 'Заголовок є обовʼязковим',
+      'string.min': 'Мінімум 5 символів',
+      'string.max': 'Максимум 80 символів',
     }),
     article: Joi.string().min(5).max(2500).required().messages({
-      'string.empty': 'Description is required',
-      'string.max': 'Description must be at most 2500 characters',
+      'string.empty': 'Текст історії є обовʼязковим',
+      'string.min': 'Мінімум 5 символів',
+      'string.max': 'Максимум 2500 символів',
     }),
-    category: Joi.string().custom(objectIdValidator).required(),
-    img: Joi.string().uri().default('https://placehold.co/600x400'),
+    category: Joi.string().custom(objectIdValidator).required().messages({
+      'any.required': 'Оберіть категорію',
+      'string.empty': 'Оберіть категорію',
+    }),
   }),
 };
 

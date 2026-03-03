@@ -71,18 +71,19 @@ export const getStoryById = async (req, res) => {
 };
 
 export const createStory = async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: 'Потрібно додати обкладинку' });
+  }
+
   const story = new Story({
     ...req.body,
     ownerId: req.user._id,
   });
 
-  if (req.file) {
-    const publicId = `story-${story._id}`;
-    const result = await saveFileToCloudinary(req.file.buffer, publicId);
-    story.img = result.secure_url;
-  }
+  const publicId = `story-${story._id}`;
+  const result = await saveFileToCloudinary(req.file.buffer, publicId);
+  story.img = result.secure_url;
 
-  // If img is required and file wasn't sent, this will throw validation error
   await story.save();
 
   await User.findByIdAndUpdate(req.user._id, { $inc: { articlesAmount: 1 } });
@@ -94,6 +95,7 @@ export const createStory = async (req, res) => {
 
   res.status(201).json(populatedStory);
 };
+
 export const updateStory = async (req, res) => {
   const { storyId } = req.params;
   //if the file have changed, send new one to Cloudinary & adding it to req.body
