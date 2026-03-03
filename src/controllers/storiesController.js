@@ -8,17 +8,19 @@ export const getAllStories = async (req, res) => {
 };
 
 export const createStory = async (req, res) => {
-  const story = await Story.create({
-    ...req.body, // title, article, category, date и т.д.
-    ownerId: req.user._id,
-  });
+  let imgUrl = undefined;
 
   if (req.file) {
-    const publicId = `story-${story._id}`;
+    const publicId = `story-${Date.now()}`; // или story-${new ObjectId()} / story-temp
     const result = await saveFileToCloudinary(req.file.buffer, publicId);
-    story.img = result.secure_url;
-    await story.save(); // save link for story
+    imgUrl = result.secure_url;
   }
+
+  const story = await Story.create({
+    ...req.body,
+    ownerId: req.user._id,
+    img: imgUrl, // ✅ required field is set before create
+  });
 
   res.status(201).json(story);
 };
