@@ -1,30 +1,99 @@
 import createHttpError from 'http-errors';
-import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
+import { saveFileToCloudinary } from '../utils/savefileToCloudinary.js';
 import { Story } from '../models/story.js';
 import { User } from '../models/user.js';
+import { Category } from '../models/category.js';
 
 export const getAllStories = async (req, res) => {
-  res.status(200).json({ message: 'All stories received' });
+  const { category } = req.query;
+  const page = Number(req.query.page) || 1;
+  const perPage = Number(req.query.perPage) || 3;
+
+  const skip = (page - 1) * perPage;
+
+  const filter = {};
+
+  if (category) {
+    filter.category = category;
+  }
+
+  const baseQuery = Story.find(filter)
+    .populate('ownerId', 'name avatarUrl')
+    .populate('category', 'name')
+    .sort({ createdAt: -1 })
+    .lean();
+
+  const [totalStories, stories] = await Promise.all([
+    Story.countDocuments(filter),
+    baseQuery.skip(skip).limit(perPage),
+  ]);
+  if (stories.length === 0) {
+    throw createHttpError(404, 'No stories found');
+  }
+
+  const totalPages = Math.ceil(totalStories / perPage);
+
+  res.status(200).json({
+    stories,
+    totalStories,
+    page,
+    perPage,
+    totalPages,
+  });
+};
+
+export const getPopularStories = async (req, res) => {
+  const stories = await Story.find()
+    .populate('ownerId', 'name avatarUrl')
+    .sort({ favoriteCount: -1, createdAt: -1 })
+    .limit(3)
+    .lean();
+  if (stories.length === 0) {
+    throw createHttpError(404, 'No stories found');
+  }
+
+  res.status(200).json({
+    stories,
+    totalStories: stories.length,
+  });
+};
+
+export const getStoryById = async (req, res) => {
+  const { storyId } = req.params;
+  const story = await Story.findById(storyId)
+    .populate('ownerId', 'name avatarUrl')
+    .populate('category', 'name');
+  if (!story) {
+    throw createHttpError(404, 'Story not found');
+  }
+
+  res.status(200).json(story);
 };
 
 export const createStory = async (req, res) => {
-  let imgUrl = undefined;
-
-  if (req.file) {
-    const publicId = `story-${Date.now()}`; // или story-${new ObjectId()} / story-temp
-    const result = await saveFileToCloudinary(req.file.buffer, publicId);
-    imgUrl = result.secure_url;
-  }
-
-  const story = await Story.create({
+  const story = new Story({
     ...req.body,
     ownerId: req.user._id,
-    img: imgUrl, // ✅ required field is set before create
   });
 
-  res.status(201).json(story);
-};
+  if (req.file) {
+    const publicId = `story-${story._id}`;
+    const result = await saveFileToCloudinary(req.file.buffer, publicId);
+    story.img = result.secure_url;
+  }
 
+  // If img is required and file wasn't sent, this will throw validation error
+  await story.save();
+
+  await User.findByIdAndUpdate(req.user._id, { $inc: { articlesAmount: 1 } });
+
+  const populatedStory = await Story.findById(story._id)
+    .populate('ownerId', 'name avatarUrl')
+    .populate('category', 'name')
+    .lean();
+
+  res.status(201).json(populatedStory);
+};
 export const updateStory = async (req, res) => {
   const { storyId } = req.params;
   //if the file have changed, send new one to Cloudinary & adding it to req.body
@@ -62,19 +131,19 @@ export const addToFavorites = async (req, res) => {
     throw createHttpError(404, 'Story not found');
   }
 
-  if (user.favoriteStories.includes(storyId)) {
+  if (user.savedArticles.includes(storyId)) {
     throw createHttpError(409, 'Story already saved');
   }
 
   const updatedUser = await User.findByIdAndUpdate(
     userId,
-    { $addToSet: { favoriteStories: storyId } },
+    { $addToSet: { savedArticles: storyId } },
     { new: true },
   );
 
   await Story.findByIdAndUpdate(storyId, { $inc: { favoriteCount: 1 } });
 
-  res.status(200).json(updatedUser.favoriteStories);
+  res.status(200).json(updatedUser.savedArticles);
 };
 
 export const removeFromFavorites = async (req, res) => {
@@ -91,13 +160,13 @@ export const removeFromFavorites = async (req, res) => {
     throw createHttpError(404, 'Story not found');
   }
 
-  if (!user.favoriteStories.includes(storyId)) {
+  if (!user.savedArticles.includes(storyId)) {
     throw createHttpError(409, 'Story is not in favorites');
   }
 
-  const updatedUser = await User.findByIdAndUpdate(
+  await User.findByIdAndUpdate(
     userId,
-    { $pull: { favoriteStories: storyId } },
+    { $pull: { savedArticles: storyId } },
     { new: true },
   );
 
@@ -106,5 +175,67 @@ export const removeFromFavorites = async (req, res) => {
     { $inc: { favoriteCount: -1 } },
   );
 
-  res.status(200).json(updatedUser.favoriteStories);
+  res.status(204).json();
+};
+
+export const getMyStories = async (req, res) => {
+  const page = Number(req.query.page) || 1;
+  const perPage = Number(req.query.perPage) || 4;
+  const skip = (page - 1) * perPage;
+
+  const storyQuery = Story.find({ ownerId: req.user._id })
+    .populate('ownerId', 'name avatarUrl')
+    .populate('category', 'name')
+    .sort({ createdAt: -1 })
+    .lean();
+
+  const [total, stories] = await Promise.all([
+    storyQuery.clone().countDocuments(),
+    storyQuery.skip(skip).limit(perPage),
+  ]);
+
+  const totalPages = Math.ceil(total / perPage);
+
+  res.status(200).json({
+    stories,
+    totalStories: total,
+    page,
+    perPage,
+    totalPages,
+  });
+};
+
+export const getFavouriteStories = async (req, res) => {
+  const page = Number(req.query.page) || 1;
+  const perPage = Number(req.query.perPage) || 4;
+  const skip = (page - 1) * perPage;
+
+  const user = await User.findById(req.user._id);
+
+  if (!user) throw createHttpError(404, 'User not found');
+
+  const reversedIds = [...user.savedArticles].reverse();
+
+  const pagedIds = reversedIds.slice(skip, skip + perPage);
+
+  const storiesRaw = await Story.find({ _id: { $in: pagedIds } })
+    .populate('ownerId', 'name avatarUrl')
+    .populate('category', 'name')
+    .lean();
+
+  const storiesMap = new Map(storiesRaw.map((s) => [s._id.toString(), s]));
+  const stories = pagedIds
+    .map((id) => storiesMap.get(id.toString()))
+    .filter(Boolean);
+
+  const total = user.savedArticles.length;
+  const totalPages = Math.ceil(total / perPage);
+
+  res.status(200).json({
+    stories,
+    totalStories: total,
+    page,
+    perPage,
+    totalPages,
+  });
 };
