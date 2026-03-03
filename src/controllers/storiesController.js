@@ -28,7 +28,7 @@ export const getAllStories = async (req, res) => {
     baseQuery.skip(skip).limit(perPage),
   ]);
   if (stories.length === 0) {
-    throw createHttpError(404, "No stories found");
+    throw createHttpError(404, 'No stories found');
   }
 
   const totalPages = Math.ceil(totalStories / perPage);
@@ -44,17 +44,17 @@ export const getAllStories = async (req, res) => {
 
 export const getPopularStories = async (req, res) => {
   const stories = await Story.find()
-    .populate("ownerId", "name avatarUrl")
+    .populate('ownerId', 'name avatarUrl')
     .sort({ favoriteCount: -1, createdAt: -1 })
     .limit(3)
     .lean();
   if (stories.length === 0) {
-    throw createHttpError(404, "No stories found");
+    throw createHttpError(404, 'No stories found');
   }
 
   res.status(200).json({
     stories,
-    totalStories: stories.length
+    totalStories: stories.length,
   });
 };
 
@@ -64,42 +64,37 @@ export const getStoryById = async (req, res) => {
     .populate('ownerId', 'name avatarUrl')
     .populate('category', 'name');
   if (!story) {
-    throw createHttpError(404, "Story not found");
+    throw createHttpError(404, 'Story not found');
   }
 
   res.status(200).json(story);
 };
 
 export const createStory = async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: 'Обкладинка є обовʼязковою' });
+  }
 
-  const story = await Story.create({
+  const story = new Story({
     ...req.body,
     ownerId: req.user._id,
   });
 
-  await User.findByIdAndUpdate(
-    req.user._id,
-    { $inc: { articlesAmount: 1 } }
-  );
+  const publicId = `story-${story._id}`;
+  const result = await saveFileToCloudinary(req.file.buffer, publicId);
 
-  if (req.file) {
-    const publicId = `story-${story._id}`;
-    const result = await saveFileToCloudinary(
-      req.file.buffer,
-      publicId
-    );
-    story.img = result.secure_url;
-    await story.save();
-  }
+  story.img = result.secure_url;
+  await story.save();
+
+  await User.findByIdAndUpdate(req.user._id, { $inc: { articlesAmount: 1 } });
 
   const populatedStory = await Story.findById(story._id)
-    .populate("ownerId", "name avatarUrl")
-    .populate("category", "name")
+    .populate('ownerId', 'name avatarUrl')
+    .populate('category', 'name')
     .lean();
 
   res.status(201).json(populatedStory);
 };
-
 export const updateStory = async (req, res) => {
   const { storyId } = req.params;
   //if the file have changed, send new one to Cloudinary & adding it to req.body
