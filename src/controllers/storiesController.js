@@ -72,7 +72,7 @@ export const getStoryById = async (req, res) => {
 
 export const createStory = async (req, res) => {
   if (!req.file) {
-    return res.status(400).json({ message: 'Потрібно додати обкладинку' });
+    return res.status(400).json({ message: 'Обкладинка є обовʼязковою' });
   }
 
   const story = new Story({
@@ -82,8 +82,8 @@ export const createStory = async (req, res) => {
 
   const publicId = `story-${story._id}`;
   const result = await saveFileToCloudinary(req.file.buffer, publicId);
-  story.img = result.secure_url;
 
+  story.img = result.secure_url;
   await story.save();
 
   await User.findByIdAndUpdate(req.user._id, { $inc: { articlesAmount: 1 } });
@@ -95,7 +95,6 @@ export const createStory = async (req, res) => {
 
   res.status(201).json(populatedStory);
 };
-
 export const updateStory = async (req, res) => {
   const { storyId } = req.params;
   //if the file have changed, send new one to Cloudinary & adding it to req.body
