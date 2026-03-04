@@ -19,26 +19,26 @@ export const setSessionCookies = (res, session) => {
   const isProduction = process.env.NODE_ENV === 'production';
 
   res.cookie('accessToken', session.accessToken, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax',
-    maxAge: FIFTEEN_MINUTES,
-    path: '/',
-  });
+  httpOnly: true,
+  secure: true,
+  sameSite: 'none',
+  path: '/',
+  maxAge: FIFTEEN_MINUTES
+});
 
-  res.cookie('refreshToken', session.refreshToken, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax',
-    maxAge: ONE_DAY,
-    path: '/',
-  });
+res.cookie('refreshToken', session.refreshToken, {
+  httpOnly: true,
+  secure: true,
+  sameSite: 'none',
+  path: '/',
+  maxAge: ONE_DAY
+});
 
-  res.cookie('sessionId', session._id, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax',
-    maxAge: ONE_DAY,
-    path: '/',
-  });
+res.cookie('sessionId', session._id.toString(), {
+  httpOnly: true,
+  secure: true,
+  sameSite: 'none',
+  path: '/',
+  maxAge: ONE_DAY
+});
 };
