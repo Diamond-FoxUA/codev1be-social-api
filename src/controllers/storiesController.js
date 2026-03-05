@@ -2,6 +2,7 @@ import createHttpError from 'http-errors';
 import { saveFileToCloudinary } from '../utils/savefileToCloudinary.js';
 import { Story } from '../models/story.js';
 import { User } from '../models/user.js';
+import { setSessionCookies } from '../services/auth.js';
 
 export const getAllStories = async (req, res) => {
   const { category } = req.query;
@@ -142,6 +143,9 @@ export const addToFavorites = async (req, res) => {
   );
 
   await Story.findByIdAndUpdate(storyId, { $inc: { favoriteCount: 1 } });
+  if (req.session) {
+    setSessionCookies(res, req.session);
+  }
 
   res.status(200).json(updatedUser.savedArticles);
 };
@@ -174,7 +178,9 @@ export const removeFromFavorites = async (req, res) => {
     { _id: storyId, favoriteCount: { $gt: 0 } },
     { $inc: { favoriteCount: -1 } },
   );
-
+  if (req.session) {
+    setSessionCookies(res, req.session);
+  }
   res.status(204).json();
 };
 
