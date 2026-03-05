@@ -92,7 +92,9 @@ export const createStory = async (req, res) => {
     .populate('ownerId', 'name avatarUrl')
     .populate('category', 'name')
     .lean();
-
+  if (req.session) {
+    setSessionCookies(res, req.session);
+  }
   res.status(201).json(populatedStory);
 };
 export const updateStory = async (req, res) => {
@@ -114,6 +116,9 @@ export const updateStory = async (req, res) => {
   );
   if (!story) {
     throw createHttpError(404, 'Story not found');
+  }
+  if (req.session) {
+    setSessionCookies(res, req.session);
   }
   res.status(200).json(story);
 };

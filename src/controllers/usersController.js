@@ -99,7 +99,9 @@ export const updateUserAvatar = async (req, res, next) => {
     );
 
     if (!user) throw createHttpError(404, 'User not found');
-
+    if (req.session) {
+      setSessionCookies(res, req.session);
+    }
     res.status(200).json({ url: user.avatarUrl });
   } catch (err) {
     next(err);
