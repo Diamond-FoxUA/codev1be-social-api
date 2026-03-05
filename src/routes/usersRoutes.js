@@ -1,11 +1,29 @@
 import { Router } from "express";
 import { celebrate } from "celebrate";
-import { getUsers, getUserById } from "../controllers/usersController.js";
-import { getUsersSchema, userIdSchema } from "../validations/usersValidation.js";
+import { getUsers, getUserById, getCurrentUser, updateUser, updateUserAvatar } from "../controllers/usersController.js";
+import { getUsersSchema, userIdSchema, updateUserSchema } from "../validations/usersValidation.js";
+import { authenticate } from '../middleware/authenticate.js';
+import { upload } from '../middleware/multer.js';
+
 
 const router = Router();
 
-router.get("/", celebrate(getUsersSchema), getUsers);
-router.get("/:userId", celebrate(userIdSchema), getUserById);
+router.get("/",
+  celebrate(getUsersSchema),
+  getUsers);
+router.get('/me',
+  authenticate,
+  getCurrentUser);
+router.patch('/me',
+  authenticate,
+  celebrate(updateUserSchema),
+  updateUser);
+router.patch('/avatar',
+  authenticate,
+  upload.single("avatar"),
+  updateUserAvatar);
+router.get("/:userId",
+  celebrate(userIdSchema),
+  getUserById);
 
 export default router;

@@ -2,22 +2,37 @@ import { Router } from 'express';
 import { celebrate } from 'celebrate';
 import {
   getAllStories,
-  addToFavorites,
-  removeFromFavorites,
+  getPopularStories,
+  getStoryById,
+  getMyStories,
   createStory,
   updateStory,
+  getFavouriteStories,
+  addToFavorites,
+  removeFromFavorites,
 } from '../controllers/storiesController.js';
 import {
   createStorySchema,
   updateStorySchema,
   storyIdSchema,
+  getAllStoriesSchema,
+  paginationSchema,
 } from '../validations/storiesValidation.js';
-import { authenticate } from '../middleware/authMiddleware.js';
+import { authenticate } from '../middleware/authenticate.js';
 import { upload } from '../middleware/multer.js';
 
 const router = Router();
 
-router.get('/', getAllStories);
+router.get('/', celebrate(getAllStoriesSchema), getAllStories);
+router.get('/popular', getPopularStories);
+router.get(
+  '/saved',
+  authenticate,
+  celebrate(paginationSchema),
+  getFavouriteStories,
+);
+router.get('/me', authenticate, celebrate(paginationSchema), getMyStories);
+
 router.post(
   '/',
   authenticate,
@@ -25,20 +40,27 @@ router.post(
   celebrate(createStorySchema),
   createStory,
 );
+
+router.get('/:storyId', celebrate(storyIdSchema), getStoryById);
 router.patch(
   '/:storyId',
   authenticate,
-  upload.single('storyImage'),
   celebrate(updateStorySchema),
+  upload.single('storyImage'),
   updateStory,
 );
 
-// router.get('/saved', authenticate, getFavouriteStories);
-
-router
-  .route('/:storyId/save')
-  .all(authenticate)
-  .post(celebrate(storyIdSchema), addToFavorites)
-  .delete(celebrate(storyIdSchema), removeFromFavorites);
+router.post(
+  '/:storyId/save',
+  authenticate,
+  celebrate(storyIdSchema),
+  addToFavorites,
+);
+router.delete(
+  '/:storyId/save',
+  authenticate,
+  celebrate(storyIdSchema),
+  removeFromFavorites,
+);
 
 export default router;

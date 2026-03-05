@@ -8,30 +8,50 @@ const objectIdValidator = (value, helpers) => {
   return value;
 };
 
+export const storyIdParamsSchema = Joi.object({
+  storyId: Joi.string().custom(objectIdValidator).required(),
+});
+
 export const storyIdSchema = {
-  [Segments.PARAMS]: Joi.object({
-    storyId: Joi.string().custom(objectIdValidator).required(),
+  [Segments.PARAMS]: storyIdParamsSchema,
+};
+
+export const paginationQuerySchema = Joi.object({
+  page: Joi.number().integer().min(1),
+  perPage: Joi.number().integer().min(3).max(9),
+});
+
+export const paginationSchema = {
+  [Segments.QUERY]: paginationQuerySchema,
+};
+
+export const getAllStoriesSchema = {
+  [Segments.QUERY]: paginationQuerySchema.keys({
+    category: Joi.string().custom(objectIdValidator),
   }),
 };
 
 export const createStorySchema = {
   [Segments.BODY]: Joi.object({
     title: Joi.string().min(5).max(80).required().messages({
-      'string.empty': 'Title is required',
-      'string.max': 'Title must be at most 80 characters',
+      'string.empty': 'Заголовок є обовʼязковим',
+      'string.min': 'Мінімум 5 символів',
+      'string.max': 'Максимум 80 символів',
     }),
     article: Joi.string().min(5).max(2500).required().messages({
-      'string.empty': 'Description is required',
-      'string.max': 'Description must be at most 2500 characters',
+      'string.empty': 'Текст історії є обовʼязковим',
+      'string.min': 'Мінімум 5 символів',
+      'string.max': 'Максимум 2500 символів',
     }),
-    category: Joi.string().custom(objectIdValidator).required(),
-    img: Joi.string().default('https://placehold.co/600x400'),
+    category: Joi.string().custom(objectIdValidator).required().messages({
+      'any.required': 'Оберіть категорію',
+      'string.empty': 'Оберіть категорію',
+    }),
   }),
 };
+
 export const updateStorySchema = {
-  [Segments.PARAMS]: Joi.object({
-    storyId: Joi.string().custom(objectIdValidator).required(),
-  }),
+  [Segments.PARAMS]: storyIdParamsSchema,
   [Segments.BODY]: Joi.object({
     title: Joi.string().min(5).max(80).messages({
       'string.max': 'Title must be at most 80 characters',
@@ -41,6 +61,6 @@ export const updateStorySchema = {
       'string.max': 'Description must be at most 2500 characters',
     }),
     category: Joi.string().custom(objectIdValidator),
-    img: Joi.string(),
+    img: Joi.string().uri(),
   }).min(1),
 };
