@@ -3,6 +3,7 @@ import createHttpError from 'http-errors';
 import { User } from '../models/user.js';
 import { createSession, setSessionCookies } from '../services/auth.js';
 import { Session } from '../models/session.js';
+import mongoose from "mongoose";
 
 export const registerUser = async (req, res) => {
   const { email, password, name } = req.body;
@@ -60,27 +61,37 @@ export const logoutUser = async (req, res) => {
   res.status(204).send();
 };
 
+
 export const refreshUserSession = async (req, res) => {
   const { sessionId, refreshToken } = req.cookies;
 
-  const session = await Session.findOne({
-    _id: sessionId,
-    refreshToken: refreshToken
-  });
-  if (!session) {
+  if (!sessionId || !refreshToken) {
     throw createHttpError(401, "Session not found");
   }
 
-  const isTokenExpired = new Date() > new Date(session.refreshTokenValidUntil);
-  if (isTokenExpired) {
+  const session = await Session.findById(
+    new mongoose.Types.ObjectId(sessionId)
+  );
+
+  if (!session || session.refreshToken !== refreshToken) {
+    throw createHttpError(401, "Session not found");
+  }
+
+  const isExpired =
+    new Date() > new Date(session.refreshTokenValidUntil);
+
+  if (isExpired) {
     throw createHttpError(401, "Session token expired");
   }
 
   await session.deleteOne();
 
   const newSession = await createSession(session.userId);
+
   setSessionCookies(res, newSession);
 
-  res.status(200).json({ message: "Session refreshed" });
+  res.status(200).json({
+    message: "Session refreshed",
+  });
 };
 
