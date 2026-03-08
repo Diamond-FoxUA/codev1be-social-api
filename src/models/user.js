@@ -38,6 +38,8 @@ const userSchema = mongoose.Schema(
   },
 );
 
+userSchema.index({ articlesAmount: -1, _id: 1 });
+
 userSchema.methods.toJSON = function () {
   const obj = this.toObject();
   delete obj.password;

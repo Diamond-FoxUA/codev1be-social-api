@@ -20,7 +20,7 @@ export const getAllStories = async (req, res) => {
   const baseQuery = Story.find(filter)
     .populate('ownerId', 'name avatarUrl')
     .populate('category', 'name')
-    .sort({ createdAt: -1 })
+    .sort({ favoriteCount: -1, createdAt: -1 })
     .lean();
 
   const [totalStories, stories] = await Promise.all([
