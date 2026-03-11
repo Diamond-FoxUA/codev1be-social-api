@@ -6,10 +6,8 @@ import { setSessionCookies } from '../services/auth.js';
 
 export const getAllStories = async (req, res) => {
   const { category } = req.query;
-  const page = Number(req.query.page) || 1;
-  const perPage = Number(req.query.perPage) || 3;
-
-  const skip = (page - 1) * perPage;
+  const offset = Number(req.query.offset) || 0;
+  const limit = Number(req.query.limit) || 9;
 
   const filter = {};
 
@@ -17,28 +15,23 @@ export const getAllStories = async (req, res) => {
     filter.category = category;
   }
 
-  const baseQuery = Story.find(filter)
-    .populate('ownerId', 'name avatarUrl')
-    .populate('category', 'name')
-    .sort({ createdAt: -1 })
-    .lean();
-
   const [totalStories, stories] = await Promise.all([
     Story.countDocuments(filter),
-    baseQuery.skip(skip).limit(perPage),
+    Story.find(filter)
+      .sort({ createdAt: -1, _id: -1 })
+      .populate('ownerId', 'name avatarUrl')
+      .populate('category', 'name')
+      .skip(offset)
+      .limit(limit)
+      .lean(),
   ]);
-  if (stories.length === 0) {
-    throw createHttpError(404, 'No stories found');
-  }
-
-  const totalPages = Math.ceil(totalStories / perPage);
 
   res.status(200).json({
     stories,
     totalStories,
-    page,
-    perPage,
-    totalPages,
+    offset,
+    limit,
+    hasMore: offset + stories.length < totalStories,
   });
 };
 

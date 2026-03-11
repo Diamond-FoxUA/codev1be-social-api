@@ -26,8 +26,10 @@ export const paginationSchema = {
 };
 
 export const getAllStoriesSchema = {
-  [Segments.QUERY]: paginationQuerySchema.keys({
+  [Segments.QUERY]: Joi.object({
     category: Joi.string().custom(objectIdValidator),
+    offset: Joi.number().integer().min(0).default(0),
+    limit: Joi.number().integer().min(1).max(50).default(9),
   }),
 };
 
